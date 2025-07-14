@@ -31,14 +31,6 @@ public class WeaponSystem {
         damageKey = new DamageKey();
     }
 
-    private NamespacedKey makeWeaponTypeKey(WeaponType type) {
-        return new NamespacedKey(nmlWeapons, WeaponType.getWeaponTypeString(type));
-    }
-
-    private NamespacedKey makeWeaponRarityKey(WeaponRarity rarity) {
-        return new NamespacedKey(nmlWeapons, WeaponRarity.getWeaponRarityString(rarity));
-    }
-
     public ItemStack generateWeapon(WeaponType type, WeaponRarity rarity, int level) {
         ItemStack weapon = new ItemStack(WeaponType.getWeaponTypeMaterial(type));
         ItemMeta meta = weapon.getItemMeta();
@@ -184,5 +176,35 @@ public class WeaponSystem {
         }
         
         DamageLoreUtil.updateLoreWithElementalDamage(weapon, weapon.getItemMeta());
+    }
+
+    public NamespacedKey makeWeaponTypeKey(WeaponType type) {
+        return new NamespacedKey(nmlWeapons, WeaponType.getWeaponTypeString(type));
+    }
+
+    public WeaponType getWeaponType(ItemStack weapon) {
+        ItemMeta meta = weapon.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+
+        for (WeaponType type : WeaponType.values()) {
+            if (pdc.has(makeWeaponTypeKey(type), PersistentDataType.INTEGER)) return type;
+        }
+
+        return null;
+    }
+
+    public NamespacedKey makeWeaponRarityKey(WeaponRarity rarity) {
+        return new NamespacedKey(nmlWeapons, WeaponRarity.getWeaponRarityString(rarity));
+    }
+
+    public WeaponRarity getWeaponRarity(ItemStack weapon) {
+        ItemMeta meta = weapon.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+
+        for (WeaponRarity rarity : WeaponRarity.values()) {
+            if (pdc.has(makeWeaponRarityKey(rarity), PersistentDataType.INTEGER)) return rarity;
+        }
+
+        return null;
     }
 }

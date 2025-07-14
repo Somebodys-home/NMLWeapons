@@ -1,5 +1,7 @@
 package io.github.Gabriel.nMLWeapons;
 
+import io.github.Gabriel.damagePlugin.noDamage.NoDamageListener;
+import io.github.Gabriel.nMLWeapons.weaponEffects.WeaponListener;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.Bukkit;
@@ -27,6 +29,8 @@ public final class NMLWeapons extends JavaPlugin {
         }
 
         weaponSystem = new WeaponSystem(this);
+
+        getServer().getPluginManager().registerEvents(new WeaponListener(this), this);
         getCommand("generateWeapon").setExecutor(new GenerateWeaponCommand(this));
     }
 
