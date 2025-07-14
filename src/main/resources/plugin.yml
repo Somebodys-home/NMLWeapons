@@ -4,3 +4,10 @@ main: io.github.Gabriel.nMLWeapons.NMLWeapons
 api-version: '1.21'
 authors: [ Gabriel Nicolas ]
 description: Plugin for my mc server for its abilites
+depend:
+  - NMLPlayerStats
+  - DamagePlugin
+commands:
+  generateWeapon:
+    description: generates a weapon for the player
+    usage: /<command> <type> <rarity>
