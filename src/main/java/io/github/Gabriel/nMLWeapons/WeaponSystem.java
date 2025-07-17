@@ -57,7 +57,7 @@ public class WeaponSystem {
         if (rarity == WeaponRarity.COMMON) {
 
             nameSegments = new String[2];
-            List<String> badAdjectives = new ArrayList<>(List.of("Garbage", "Awful", "Do Better", "Baby's First", "Oh God That", "Rotten", "Poor", "Degrading", "Forgotten"));
+            List<String> badAdjectives = new ArrayList<>(List.of("Garbage", "Awful", "Do Better", "Babies' First", "Oh God That", "Rotten", "Poor", "Degrading", "Forgotten", "Racist"));
 
             nameSegments[0] = badAdjectives.get(ThreadLocalRandom.current().nextInt(badAdjectives.size()));
 
@@ -93,7 +93,7 @@ public class WeaponSystem {
             List<String> axe = new ArrayList<>(List.of("le curved stabby"));
             nameSegments[nameSegments.length - 1] = axe.get(ThreadLocalRandom.current().nextInt(axe.size()));
         } else if (type == WeaponType.HAMMER) {
-            List<String> hammer = new ArrayList<>(List.of("Squeaky Toy", "Smokin' Blunt"));
+            List<String> hammer = new ArrayList<>(List.of("Squeaky Toy", "Blunt", "Mallet", "Bonker", "Hammer"));
             nameSegments[nameSegments.length - 1] = hammer.get(ThreadLocalRandom.current().nextInt(hammer.size()));
         } else if (type == WeaponType.SPEAR) {
             List<String> spear = new ArrayList<>(List.of("Giant Arrow", "Javelin", "Military Fork", "Overcompensator"));

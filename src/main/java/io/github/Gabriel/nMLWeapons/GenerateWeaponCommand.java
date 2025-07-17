@@ -26,11 +26,11 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player player) {
-            String type = args[0];
+            int level = Integer.parseInt(args[0]);
             String rarity = args[1];
+            String type = args[2];
             ItemStack weapon = weaponSystem.generateWeapon(WeaponType.getWeaponTypeFromString(type),
-                    WeaponRarity.getWeaponRarityFromString(rarity),
-                    profileManager.getPlayerProfile(player.getUniqueId()).getStats().getLevel());
+                    WeaponRarity.getWeaponRarityFromString(rarity), level);
 
             player.getInventory().setItemInMainHand(weapon);
         }
@@ -40,12 +40,17 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 1) {
-            return new ArrayList<>(List.of("sword", "dagger", "axe", "hammer", "spear", "glove", "bow", "wand", "staff", "catalyst")).stream()
+            return new ArrayList<>(List.of("<level>")).stream()
                     .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
-        } else if (args.length == 2) {
+        }
+        else if (args.length == 2) {
             return new ArrayList<>(List.of("common", "uncommon", "rare", "mythical")).stream()
                     .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+        } else if (args.length == 3) {
+            return new ArrayList<>(List.of("sword", "dagger", "axe", "hammer", "spear", "glove", "bow", "wand", "staff", "catalyst")).stream()
+                    .filter(s -> s.toLowerCase().startsWith(args[2].toLowerCase()))
                     .collect(Collectors.toList());
         }
         return List.of();
