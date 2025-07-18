@@ -84,7 +84,7 @@ public class WeaponSystem {
         }
 
         if (type == WeaponType.SWORD) {
-            List<String> sword = new ArrayList<>(List.of("le stabby"));
+            List<String> sword = new ArrayList<>(List.of("Le Stabby", "Seax", "Scimitar"));
             nameSegments[nameSegments.length - 1] = sword.get(ThreadLocalRandom.current().nextInt(sword.size()));
         } else if (type == WeaponType.DAGGER) {
             List<String> dagger = new ArrayList<>(List.of("le small stabby"));
@@ -207,4 +207,5 @@ public class WeaponSystem {
 
         return null;
     }
+
 }

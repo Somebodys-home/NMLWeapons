@@ -6,21 +6,18 @@ import io.github.Gabriel.nMLWeapons.NMLWeapons;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -246,5 +243,148 @@ public class WeaponEffects {
                 }
             }
         }.runTaskLater(nmlWeapons, 7L);
+    }
+
+    public void bowEffect(Arrow arrow, Player player) {
+        arrow.setVelocity(player.getLocation().getDirection().normalize().multiply(3.5));
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!arrow.isValid() || arrow.isDead() || arrow.isInBlock()) {
+                    player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
+                    this.cancel();
+                    return;
+                }
+
+                player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
+            }
+        }.runTaskTimer(nmlWeapons, 2L, 5L);
+    }
+
+    public void magicalEffect(ItemStack weapon, Player player) {
+        if (player.hasCooldown(weapon.getType())) return;
+
+        RayTraceResult target = player.getWorld().rayTraceEntities(
+                player.getEyeLocation(),
+                player.getLocation().getDirection(),
+                16,
+                entity -> entity instanceof LivingEntity && !entity.equals(player)
+        );
+
+        if (target != null && target.getHitEntity() instanceof LivingEntity livingEntity) {
+            if (livingEntity.hasMetadata("been hit")) {
+                return;
+            }
+
+            player.setCooldown(weapon.getType(), 23); // 1.15s cooldown
+            hitEntityUUIDs.add(livingEntity.getUniqueId());
+            livingEntity.setMetadata("been hit", new FixedMetadataValue(nmlWeapons, true));
+
+            Location eyeLoc = player.getEyeLocation();
+            Vector direction = eyeLoc.getDirection().normalize();
+            Random random = new Random();
+
+            Vector randomVec = new Vector(random.nextDouble(), random.nextDouble(), random.nextDouble()).normalize();
+            Vector curveAxis = direction.clone().crossProduct(randomVec).normalize();
+            Vector right = direction.clone().crossProduct(new Vector(0, 1, 0)).normalize();
+
+            Location start = player.getLocation().add(0, 1.2, 0).add(right.multiply(0.4));
+            Location end = livingEntity.getLocation().add(0, 0.5, 0);
+
+            double curveDirection = random.nextBoolean() ? 1 : -1; // Is the arc gonna curve left or right
+            double verticalCurveDirection = random.nextBoolean() ? 1 : -1; // Is the arc gonna curve up or down
+            double curveAmount = 1.5 + random.nextDouble() * 3.0; // How far the arc bends left/right (scaled randomly for variety)
+            double minHeight = 0.2 + random.nextDouble(); // Minimum arc height
+            double maxHeight = 1.0 + random.nextDouble() * 1.5; // Maximum arc height
+            int particleInstances = 10;
+
+            new BukkitRunnable() {
+                int i = 0;
+
+                @Override
+                public void run() {
+                    if (i > particleInstances) {
+                        for (UUID uuid : hitEntityUUIDs) {
+                            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity2) {
+                                CustomDamager.doDamage(livingEntity2, player, new DamageKey().getAllDamageStats(weapon));
+                                player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 0, 0, 0);
+                                livingEntity2.removeMetadata("been hit", nmlWeapons);
+                            }
+                        }
+                        livingEntity.removeMetadata("been hit", nmlWeapons);
+                        cancel();
+                        return;
+                    }
+
+                    double progress = (double) i / particleInstances; // Progress along the arc (0.0 -> 1)
+
+                    // Linear interpolation between start and end
+                    double baseX = start.getX() + (end.getX() - start.getX()) * progress;
+                    double baseY = start.getY() + (end.getY() - start.getY()) * progress;
+                    double baseZ = start.getZ() + (end.getZ() - start.getZ()) * progress;
+
+                    double curveOffset = curveDirection * curveAmount * Math.sin(progress * Math.PI); // Horozontial sinusoidal curve offset
+                    double heightFactor = minHeight + (maxHeight - minHeight) * Math.sin(progress * Math.PI); // Vertical sinusoidal curve height
+
+                    // Apply side curve and vertical arc to base position
+                    double x = baseX + curveAxis.getX() * curveOffset;
+                    double y = baseY + heightFactor * verticalCurveDirection;
+                    double z = baseZ + curveAxis.getZ() * curveOffset;
+
+                    double floorYLimit = end.getY() + .1; // Clamp the minimum y value based on TARGET'S position
+                    y = Math.max(y, floorYLimit);
+
+                    Location particleLocation = new Location(player.getWorld(), x, y, z);
+                    player.getWorld().spawnParticle(Particle.GLOW, particleLocation, 50, 0.1, 0.075, 0.1, 0);
+
+                    i++;
+                }
+            }.runTaskTimer(nmlWeapons.getInstance(), 0L, 1L);
+        } else {
+            Location center = player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(1.5));
+            center.setY(center.getY() - .125);
+
+            int pointsPerLine = 5;
+            double size = 0.33;
+
+            new BukkitRunnable() {
+                int ticks = 0;
+
+                @Override
+                public void run() {
+                    if (ticks > 2) {
+                        cancel();
+                        return;
+                    }
+
+                    Vector forward = player.getEyeLocation().getDirection().normalize();
+                    Vector up = new Vector(0, 1, 0);
+
+                    if (Math.abs(forward.dot(up)) > 0.98) {
+                        up = new Vector(1, 0, 0);
+                    }
+
+                    Vector right = forward.clone().crossProduct(up).normalize();
+                    Vector screenUp = right.clone().crossProduct(forward).normalize();
+
+                    for (int i = 0; i <= pointsPerLine; i++) {
+                        double t = i / (double) pointsPerLine;
+                        double offset = size * (t - 0.5);
+
+                        Vector offset1 = right.clone().multiply(offset).add(screenUp.clone().multiply(offset));
+                        Vector offset2 = right.clone().multiply(offset).add(screenUp.clone().multiply(-offset));
+
+                        Location point1 = center.clone().add(offset1);
+                        Location point2 = center.clone().add(offset2);
+
+                        player.getWorld().spawnParticle(Particle.DRIPPING_DRIPSTONE_LAVA, point1, 1, 0, 0, 0);
+                        player.getWorld().spawnParticle(Particle.DRIPPING_DRIPSTONE_LAVA, point2, 1, 0, 0, 0);
+                    }
+
+                    ticks++;
+                }
+            }.runTaskTimer(nmlWeapons.getInstance(), 0L, 1L);
+        }
     }
 }

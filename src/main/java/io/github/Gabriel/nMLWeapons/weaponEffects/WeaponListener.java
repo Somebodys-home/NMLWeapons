@@ -1,15 +1,22 @@
 package io.github.Gabriel.nMLWeapons.weaponEffects;
 
+import io.github.Gabriel.damagePlugin.customDamage.CustomDamager;
+import io.github.Gabriel.damagePlugin.customDamage.DamageKey;
 import io.github.Gabriel.nMLWeapons.NMLWeapons;
 import io.github.Gabriel.nMLWeapons.WeaponSystem;
 import io.github.Gabriel.nMLWeapons.WeaponType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -18,6 +25,8 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.Objects;
 
@@ -46,6 +55,9 @@ public class WeaponListener implements Listener {
                 case HAMMER -> weaponEffects.hammerEffect(weapon, player);
                 case SPEAR -> weaponEffects.spearEffect(weapon, player);
                 case GLOVE -> weaponEffects.gloveEffect(weapon, player);
+                case BOW -> { return; }
+                case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
+                case null -> { return; }
             }
         }
     }
@@ -64,8 +76,38 @@ public class WeaponListener implements Listener {
                     case HAMMER -> weaponEffects.hammerEffect(weapon, player);
                     case SPEAR -> weaponEffects.spearEffect(weapon, player);
                     case GLOVE -> weaponEffects.gloveEffect(weapon, player);
+                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
                 }
             }
+        }
+        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
+            if (arrow.hasMetadata("custom arrow")) {
+                ItemStack bow = (ItemStack) arrow.getMetadata("custom arrow").get(0).value();
+
+                event.setDamage(0);
+                arrow.remove();
+                CustomDamager.doDamage((LivingEntity) event.getEntity(), player, new DamageKey().getAllDamageStats(bow));
+            }
+        }
+    }
+
+    @EventHandler
+    public void weaponLevelCheck(PlayerItemHeldEvent event) {
+
+    }
+
+    @EventHandler
+    public void bowShots(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!(event.getProjectile() instanceof Arrow arrow)) return;
+        ItemStack bow = event.getBow();
+
+        arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, bow));
+        arrow.setVelocity(event.getEntity().getLocation().getDirection().normalize().multiply(2));
+        arrow.setCritical(true);
+
+        if (event.getForce() >= 1.0f) {
+            new WeaponEffects(nmlWeapons).bowEffect(arrow, player);
         }
     }
 
@@ -78,7 +120,7 @@ public class WeaponListener implements Listener {
         if (mainHand != null) {
             // if mainhand item has metadata and IS a glove
             if (mainHand.hasItemMeta() && new WeaponSystem(nmlWeapons).getWeaponType(mainHand) == WeaponType.GLOVE) {
-                if (offhand.getType() == Material.AIR) { // and theres nothing in the offhand
+                if (offhand.getType() == Material.AIR) { // and there's nothing in the offhand
                     player.getInventory().setItemInOffHand(mainHand); // put a glove in the offhand
                 }
             } else {
@@ -97,7 +139,7 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void dontTakeGlovesOffOfOffhand(InventoryClickEvent event) {
+    public void dontTakeGloveOffOfOffhand(InventoryClickEvent event) {
         ItemStack cursorItem = event.getCurrentItem();
 
         if (event.getCursor() != null && cursorItem != null && cursorItem.hasItemMeta()) {
@@ -112,7 +154,7 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void dontPlaceGlovesInOffhand(InventoryClickEvent event) {
+    public void dontPlaceGloveInOffhand(InventoryClickEvent event) {
         ItemStack cursorItem = event.getCursor();
 
         if (cursorItem != null && cursorItem.getType() != Material.AIR && cursorItem.hasItemMeta()) {
@@ -125,4 +167,22 @@ public class WeaponListener implements Listener {
             }
         }
     }
+
+    // todo: this doesnt work
+    @EventHandler
+    public void removeBothGlovesAtOnce(InventoryClickEvent event) {
+        ItemStack clickedItem = event.getCurrentItem();
+        WeaponSystem weaponSystem = new WeaponSystem(nmlWeapons);
+
+        if (clickedItem != null && clickedItem.hasItemMeta() && weaponSystem.getWeaponType(clickedItem) == WeaponType.GLOVE) {
+            if (event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_ALL) {
+                ItemStack offhandItem = event.getInventory().getItem(40);
+
+                if (offhandItem != null && offhandItem.hasItemMeta() && weaponSystem.getWeaponType(offhandItem) == WeaponType.GLOVE) {
+                    event.getInventory().setItem(40, new ItemStack(Material.AIR));
+                }
+            }
+        }
+    }
+
 }
