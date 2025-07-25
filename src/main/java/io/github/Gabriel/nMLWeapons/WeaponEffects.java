@@ -1,8 +1,7 @@
-package io.github.Gabriel.nMLWeapons.weaponEffects;
+package io.github.Gabriel.nMLWeapons;
 
 import io.github.Gabriel.damagePlugin.customDamage.CustomDamager;
 import io.github.Gabriel.damagePlugin.customDamage.DamageKey;
-import io.github.Gabriel.nMLWeapons.NMLWeapons;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;

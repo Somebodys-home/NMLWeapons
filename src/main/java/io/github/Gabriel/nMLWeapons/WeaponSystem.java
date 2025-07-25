@@ -98,6 +98,7 @@ public class WeaponSystem {
 
         }
 
+        assert nameSegments != null;
         if (type == WeaponType.SWORD) {
             List<String> sword = new ArrayList<>(List.of("Le Stabby", "Seax", "Scimitar"));
             nameSegments[nameSegments.length - 1] = sword.get(ThreadLocalRandom.current().nextInt(sword.size()));
@@ -159,12 +160,16 @@ public class WeaponSystem {
     }
 
     public boolean isWeaponUsable(ItemStack weapon, Player player) {
-        ItemMeta meta = weapon.getItemMeta();
-        PersistentDataContainer pdc = meta.getPersistentDataContainer();
-        Integer itemLevel = pdc.get(levelKey, PersistentDataType.INTEGER);
-        int playerLevel = new ProfileManager(nmlWeapons.getNmlPlayerStats()).getPlayerProfile(player.getUniqueId()).getStats().getLevel();
+        if (weapon != null) {
+            ItemMeta meta = weapon.getItemMeta();
+            PersistentDataContainer pdc = meta.getPersistentDataContainer();
+            Integer itemLevel = pdc.get(levelKey, PersistentDataType.INTEGER);
+            int playerLevel = new ProfileManager(nmlWeapons.getNmlPlayerStats()).getPlayerProfile(player.getUniqueId()).getStats().getLevel();
 
-        return playerLevel >= itemLevel;
+            return playerLevel >= itemLevel;
+        } else {
+            return false;
+        }
     }
 
     public void generateWeaponDamage(ItemStack weapon, WeaponType type, WeaponRarity rarity, int level) {

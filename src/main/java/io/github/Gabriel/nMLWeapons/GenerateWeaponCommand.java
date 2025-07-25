@@ -15,11 +15,9 @@ import java.util.stream.Collectors;
 
 public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     private WeaponSystem weaponSystem;
-    private ProfileManager profileManager;
 
     public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
         weaponSystem = nmlWeapons.getWeaponSystem();
-        profileManager = nmlWeapons.getProfileManager();
     }
 
     @Override

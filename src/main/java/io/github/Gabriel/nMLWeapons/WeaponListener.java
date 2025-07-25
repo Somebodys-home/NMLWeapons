@@ -1,39 +1,26 @@
-package io.github.Gabriel.nMLWeapons.weaponEffects;
+package io.github.Gabriel.nMLWeapons;
 
 import io.github.Gabriel.damagePlugin.customDamage.CustomDamager;
 import io.github.Gabriel.damagePlugin.customDamage.DamageKey;
-import io.github.Gabriel.nMLWeapons.NMLWeapons;
-import io.github.Gabriel.nMLWeapons.WeaponSystem;
-import io.github.Gabriel.nMLWeapons.WeaponType;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
@@ -75,7 +62,7 @@ public class WeaponListener implements Listener {
             ItemStack weapon = player.getInventory().getItemInMainHand();
             WeaponEffects weaponEffects = new WeaponEffects(nmlWeapons);
 
-            if (weapon.getItemMeta() != null && new WeaponSystem(nmlWeapons).getWeaponType(weapon) != null) {
+            if (weapon.getItemMeta() != null && weaponSystem.getWeaponType(weapon) != null) {
                 if (weaponSystem.isWeaponUsable(weapon, player)) {
                     switch (weaponSystem.getWeaponType(weapon)) {
                         case SWORD -> weaponEffects.swordEffect(weapon, player);
@@ -106,7 +93,7 @@ public class WeaponListener implements Listener {
         ItemStack heldItem = player.getInventory().getItem(event.getNewSlot());
         boolean usable = weaponSystem.isWeaponUsable(heldItem, player);
 
-        if (heldItem.getType() == Material.AIR) { return; }
+        if (heldItem == null || heldItem.getType() == Material.AIR) { return; }
         if (!heldItem.hasItemMeta()) { return; }
         if (weaponSystem.getWeaponType(heldItem) == null) { return; }
         if (!usable) {
@@ -172,22 +159,41 @@ public class WeaponListener implements Listener {
 
         if (mainHand != null) {
             // if mainhand item has metadata and IS a glove
-            if (mainHand.hasItemMeta() && new WeaponSystem(nmlWeapons).getWeaponType(mainHand) == WeaponType.GLOVE) {
+            if (mainHand.hasItemMeta() && weaponSystem.getWeaponType(mainHand) == WeaponType.GLOVE) {
                 if (offhand.getType() == Material.AIR) { // and there's nothing in the offhand
                     player.getInventory().setItemInOffHand(mainHand); // put a glove in the offhand
                 }
             } else {
                 // if mainhand item has metadata but ISNT a glove
-                if (mainHand.hasItemMeta() && new WeaponSystem(nmlWeapons).getWeaponType(mainHand) != WeaponType.GLOVE) {
-                    if (offhand.getItemMeta() != null && new WeaponSystem(nmlWeapons).getWeaponType(offhand) == WeaponType.GLOVE) { // and if offhand item is a glove
+                if (mainHand.hasItemMeta() && weaponSystem.getWeaponType(mainHand) != WeaponType.GLOVE) {
+                    if (offhand.getItemMeta() != null && weaponSystem.getWeaponType(offhand) == WeaponType.GLOVE) { // and if offhand item is a glove
                         player.getInventory().setItemInOffHand(new ItemStack(Material.AIR)); // remove it
                     }
                 }
             }
         } else { // if mainhand IS null
-            if (offhand.getItemMeta() != null && new WeaponSystem(nmlWeapons).getWeaponType(offhand) == WeaponType.GLOVE) { // and if offhand item is a glove
+            if (offhand.getItemMeta() != null && weaponSystem.getWeaponType(offhand) == WeaponType.GLOVE) { // and if offhand item is a glove
                 player.getInventory().setItemInOffHand(new ItemStack(Material.AIR)); // remove it
             }
+        }
+    }
+
+    @EventHandler
+    public void pickupBothGloves(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        ItemStack pickedUpItem = event.getItem().getItemStack();
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+
+        if (pickedUpItem.hasItemMeta() && weaponSystem.getWeaponType(pickedUpItem) == WeaponType.GLOVE && offhand.getType() == Material.AIR) {
+            Bukkit.getScheduler().runTaskLater(nmlWeapons, () -> {
+                int slot = player.getInventory().first(pickedUpItem.getType());
+                ItemStack glove = player.getInventory().getItem(slot);
+
+                if (glove != null && glove.isSimilar(pickedUpItem)) {
+                    player.getInventory().setItemInOffHand(glove);
+                }
+            }, 1L);
         }
     }
 
@@ -196,7 +202,7 @@ public class WeaponListener implements Listener {
         ItemStack cursorItem = event.getCurrentItem();
 
         if (event.getCursor() != null && cursorItem != null && cursorItem.hasItemMeta()) {
-            if (new WeaponSystem(nmlWeapons).getWeaponType(cursorItem) == WeaponType.GLOVE) {
+            if (weaponSystem.getWeaponType(cursorItem) == WeaponType.GLOVE) {
                 if (event.getAction() == InventoryAction.PICKUP_ALL) {
                     if (event.getSlot() == 40) {
                         event.setCancelled(true);
@@ -211,7 +217,7 @@ public class WeaponListener implements Listener {
         ItemStack cursorItem = event.getCursor();
 
         if (cursorItem != null && cursorItem.getType() != Material.AIR && cursorItem.hasItemMeta()) {
-            if (new WeaponSystem(nmlWeapons).getWeaponType(cursorItem) == WeaponType.GLOVE) {
+            if (weaponSystem.getWeaponType(cursorItem) == WeaponType.GLOVE) {
                 if (event.getSlot() == 40) {
                     if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
                         event.setCancelled(true);
@@ -221,20 +227,16 @@ public class WeaponListener implements Listener {
         }
     }
 
-//    // todo: this doesnt work
-//    @EventHandler
-//    public void removeBothGlovesAtOnce(InventoryClickEvent event) {
-//        ItemStack clickedItem = event.getCurrentItem();
-//        WeaponSystem weaponSystem = new WeaponSystem(nmlWeapons);
-//
-//        if (clickedItem != null && clickedItem.hasItemMeta() && weaponSystem.getWeaponType(clickedItem) == WeaponType.GLOVE) {
-//            if (event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_ALL) {
-//                ItemStack offhandItem = event.getInventory().getItem(40);
-//
-//                if (offhandItem != null && offhandItem.hasItemMeta() && weaponSystem.getWeaponType(offhandItem) == WeaponType.GLOVE) {
-//                    event.getInventory().setItem(40, new ItemStack(Material.AIR));
-//                }
-//            }
-//        }
-//    }
+    @EventHandler
+    public void dropBothGloves(PlayerDropItemEvent event) {
+        ItemStack droppedItem = event.getItemDrop().getItemStack();
+
+        if (droppedItem.hasItemMeta() && weaponSystem.getWeaponType(droppedItem) == WeaponType.GLOVE) {
+            ItemStack offhandItem = event.getPlayer().getInventory().getItem(40);
+
+            if (offhandItem != null && offhandItem.hasItemMeta() && weaponSystem.getWeaponType(offhandItem) == WeaponType.GLOVE) {
+                event.getPlayer().getInventory().setItem(40, new ItemStack(Material.AIR));
+            }
+        }
+    }
 }
