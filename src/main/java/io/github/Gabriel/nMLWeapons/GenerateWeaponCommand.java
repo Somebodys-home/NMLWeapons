@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +28,7 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
             int level = Integer.parseInt(args[0]);
             String rarity = args[1];
             String type = args[2];
-            ItemStack weapon = weaponSystem.generateWeapon(WeaponType.getWeaponTypeFromString(type),
-                    WeaponRarity.getWeaponRarityFromString(rarity), level);
+            ItemStack weapon = weaponSystem.generateWeapon(player, WeaponType.getWeaponTypeFromString(type), WeaponRarity.getWeaponRarityFromString(rarity), level);
 
             player.getInventory().setItemInMainHand(weapon);
         }

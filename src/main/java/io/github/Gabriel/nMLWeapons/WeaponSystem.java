@@ -3,13 +3,17 @@ package io.github.Gabriel.nMLWeapons;
 import io.github.Gabriel.damagePlugin.customDamage.DamageKey;
 import io.github.Gabriel.damagePlugin.customDamage.DamageLoreUtil;
 import io.github.Gabriel.damagePlugin.customDamage.DamageType;
+import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -25,28 +29,39 @@ import static io.github.Gabriel.damagePlugin.customDamage.DamageType.PURE;
 public class WeaponSystem {
     private NMLWeapons nmlWeapons;
     private DamageKey damageKey;
+    private NamespacedKey originalNameKey;
+    private NamespacedKey levelKey;
 
     public WeaponSystem(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         damageKey = new DamageKey();
+        originalNameKey = new NamespacedKey(nmlWeapons, "original_name");
+        levelKey = new NamespacedKey(nmlWeapons, "level");
     }
 
-    public ItemStack generateWeapon(WeaponType type, WeaponRarity rarity, int level) {
+    public ItemStack generateWeapon(Player receiver, WeaponType type, WeaponRarity rarity, int level) {
         ItemStack weapon = new ItemStack(WeaponType.getWeaponTypeMaterial(type));
         ItemMeta meta = weapon.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = new ArrayList<>();
 
-        // setting keys, name, and item type in lore
         pdc.set(makeWeaponTypeKey(type), PersistentDataType.INTEGER, 1);
         pdc.set(makeWeaponRarityKey(rarity), PersistentDataType.INTEGER, 1);
-        meta.setDisplayName(generateWeaponName(type, rarity, level));
+        pdc.set(levelKey, PersistentDataType.INTEGER, level);
+        weapon.setItemMeta(meta);
+
+        String name = generateWeaponName(type, rarity, level);
+        meta.setDisplayName(name);
+        pdc.set(originalNameKey, PersistentDataType.STRING, name);
+
         lore.add(WeaponRarity.getWeaponRarityColor(rarity) + "" + ChatColor.BOLD + WeaponRarity.getWeaponRarityString(rarity).toUpperCase() + " " + WeaponType.getWeaponTypeString(type).toUpperCase());
         lore.add("");
         meta.setLore(lore);
         weapon.setItemMeta(meta);
 
         generateWeaponDamage(weapon, type, rarity, level);
+        updateUnusableWeaponName(weapon, isWeaponUsable(weapon, receiver));
+
         return weapon;
     }
 
@@ -115,7 +130,7 @@ public class WeaponSystem {
             nameSegments[nameSegments.length - 1] = catalyst.get(ThreadLocalRandom.current().nextInt(catalyst.size()));
         }
 
-        name += "§f§oLv. " + level + "§r" + WeaponRarity.getWeaponRarityColor(rarity) + " ";
+        name += "§o§fLv. " + level + "§r " + WeaponRarity.getWeaponRarityColor(rarity);
         for (int i = 0; i < nameSegments.length; i++) {
             if (i == nameSegments.length - 1) {
                 name += nameSegments[i];
@@ -125,6 +140,31 @@ public class WeaponSystem {
         }
 
         return name;
+    }
+
+    public void updateUnusableWeaponName(ItemStack weapon, boolean unusable) {
+        ItemMeta meta = weapon.getItemMeta();
+        String originalName = getOriginalItemName(weapon);
+        String editedName;
+
+        if (!unusable) {
+            editedName = originalName.replaceAll("§[0-9a-fk-or]", "");
+            editedName = "§c§m" + editedName;
+        } else {
+           editedName = originalName;
+        }
+
+        meta.setDisplayName(editedName);
+        weapon.setItemMeta(meta);
+    }
+
+    public boolean isWeaponUsable(ItemStack weapon, Player player) {
+        ItemMeta meta = weapon.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        Integer itemLevel = pdc.get(levelKey, PersistentDataType.INTEGER);
+        int playerLevel = new ProfileManager(nmlWeapons.getNmlPlayerStats()).getPlayerProfile(player.getUniqueId()).getStats().getLevel();
+
+        return playerLevel >= itemLevel;
     }
 
     public void generateWeaponDamage(ItemStack weapon, WeaponType type, WeaponRarity rarity, int level) {
@@ -174,7 +214,7 @@ public class WeaponSystem {
                 }
             }
         }
-        
+
         DamageLoreUtil.updateLoreWithElementalDamage(weapon, weapon.getItemMeta());
     }
 
@@ -208,4 +248,15 @@ public class WeaponSystem {
         return null;
     }
 
+    public String getOriginalItemName(ItemStack weapon) {
+        if (weapon == null || weapon.getType().isAir()) return null;
+
+        ItemMeta meta = weapon.getItemMeta();
+        if (meta == null) return null;
+
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        if (!pdc.has(originalNameKey, PersistentDataType.STRING)) return null;
+
+        return pdc.get(originalNameKey, PersistentDataType.STRING);
+    }
 }

@@ -5,13 +5,13 @@ import io.github.Gabriel.damagePlugin.customDamage.DamageKey;
 import io.github.Gabriel.nMLWeapons.NMLWeapons;
 import io.github.Gabriel.nMLWeapons.WeaponSystem;
 import io.github.Gabriel.nMLWeapons.WeaponType;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -25,9 +25,14 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 
 public class WeaponListener implements Listener {
@@ -48,16 +53,18 @@ public class WeaponListener implements Listener {
         WeaponEffects weaponEffects = new WeaponEffects(nmlWeapons);
 
         if (weapon.getItemMeta() != null) {
-            switch (weaponSystem.getWeaponType(weapon)) {
-                case SWORD -> weaponEffects.swordEffect(weapon, player);
-                case DAGGER -> weaponEffects.daggerEffect(weapon, player);
-                case AXE -> weaponEffects.axeEffect(weapon, player);
-                case HAMMER -> weaponEffects.hammerEffect(weapon, player);
-                case SPEAR -> weaponEffects.spearEffect(weapon, player);
-                case GLOVE -> weaponEffects.gloveEffect(weapon, player);
-                case BOW -> { return; }
-                case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
-                case null -> { return; }
+            if (weaponSystem.isWeaponUsable(weapon, player)) {
+                switch (weaponSystem.getWeaponType(weapon)) {
+                    case SWORD -> weaponEffects.swordEffect(weapon, player);
+                    case DAGGER -> weaponEffects.daggerEffect(weapon, player);
+                    case AXE -> weaponEffects.axeEffect(weapon, player);
+                    case HAMMER -> weaponEffects.hammerEffect(weapon, player);
+                    case SPEAR -> weaponEffects.spearEffect(weapon, player);
+                    case GLOVE -> weaponEffects.gloveEffect(weapon, player);
+                    case BOW -> { return; }
+                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
+                    case null -> { return; }
+                }
             }
         }
     }
@@ -69,14 +76,16 @@ public class WeaponListener implements Listener {
             WeaponEffects weaponEffects = new WeaponEffects(nmlWeapons);
 
             if (weapon.getItemMeta() != null && new WeaponSystem(nmlWeapons).getWeaponType(weapon) != null) {
-                switch (weaponSystem.getWeaponType(weapon)) {
-                    case SWORD -> weaponEffects.swordEffect(weapon, player);
-                    case DAGGER -> weaponEffects.daggerEffect(weapon, player);
-                    case AXE -> weaponEffects.axeEffect(weapon, player);
-                    case HAMMER -> weaponEffects.hammerEffect(weapon, player);
-                    case SPEAR -> weaponEffects.spearEffect(weapon, player);
-                    case GLOVE -> weaponEffects.gloveEffect(weapon, player);
-                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
+                if (weaponSystem.isWeaponUsable(weapon, player)) {
+                    switch (weaponSystem.getWeaponType(weapon)) {
+                        case SWORD -> weaponEffects.swordEffect(weapon, player);
+                        case DAGGER -> weaponEffects.daggerEffect(weapon, player);
+                        case AXE -> weaponEffects.axeEffect(weapon, player);
+                        case HAMMER -> weaponEffects.hammerEffect(weapon, player);
+                        case SPEAR -> weaponEffects.spearEffect(weapon, player);
+                        case GLOVE -> weaponEffects.gloveEffect(weapon, player);
+                        case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
+                    }
                 }
             }
         }
@@ -91,23 +100,67 @@ public class WeaponListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler()
     public void weaponLevelCheck(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        ItemStack heldItem = player.getInventory().getItem(event.getNewSlot());
+        boolean usable = weaponSystem.isWeaponUsable(heldItem, player);
 
+        if (heldItem.getType() == Material.AIR) { return; }
+        if (!heldItem.hasItemMeta()) { return; }
+        if (weaponSystem.getWeaponType(heldItem) == null) { return; }
+        if (!usable) {
+            player.sendMessage("§c⚠ §nYou are too inexperienced for this item!§r§c ⚠");
+            player.sendMessage("§6⚠ You will not gain stats from, or be able to use this item. ⚠");
+        }
+
+        weaponSystem.updateUnusableWeaponName(heldItem, usable);
     }
 
     @EventHandler
     public void bowShots(EntityShootBowEvent event) {
+        ItemStack bow = event.getBow();
+        Float force = event.getForce();
         if (!(event.getEntity() instanceof Player player)) return;
         if (!(event.getProjectile() instanceof Arrow arrow)) return;
-        ItemStack bow = event.getBow();
 
-        arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, bow));
-        arrow.setVelocity(event.getEntity().getLocation().getDirection().normalize().multiply(2));
-        arrow.setCritical(true);
+        if (weaponSystem.isWeaponUsable(bow, player)) {
+            arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, bow));
+            arrow.setCritical(false);
 
-        if (event.getForce() >= 1.0f) {
-            new WeaponEffects(nmlWeapons).bowEffect(arrow, player);
+            if (force <= 2.0f) { // semi-charged shot
+                double boost;
+                if (force <= 0.5) {
+                    boost = 1.0 + (0.5 * (1 - (force / 0.5)));
+                } else {
+                    double scale = (2.0 - force) / 1.5;
+                    boost = 1.0 + (0.25 * scale);
+                }
+                arrow.setVelocity(arrow.getVelocity().multiply(boost));
+            } else if (force >= 2.6f) { // fully charged shot
+                new WeaponEffects(nmlWeapons).bowEffect(arrow, player);
+            }
+
+            // custom trail particles
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (arrow.isDead() || arrow.isOnGround()) {
+                        this.cancel();
+                        return;
+                    }
+
+                    double speed = arrow.getVelocity().length();
+                    int particleCount = (int) (Math.pow(speed, 2) * 5);
+
+                    if (particleCount > 0) {
+                        Location loc = arrow.getLocation();
+                        player.getWorld().spawnParticle(Particle.CRIT, loc, particleCount,0, 0, 0, 0);
+                    }
+                }
+            }.runTaskTimer(nmlWeapons, 0, 1);
+        } else {
+            event.setCancelled(true);
         }
     }
 
@@ -168,21 +221,20 @@ public class WeaponListener implements Listener {
         }
     }
 
-    // todo: this doesnt work
-    @EventHandler
-    public void removeBothGlovesAtOnce(InventoryClickEvent event) {
-        ItemStack clickedItem = event.getCurrentItem();
-        WeaponSystem weaponSystem = new WeaponSystem(nmlWeapons);
-
-        if (clickedItem != null && clickedItem.hasItemMeta() && weaponSystem.getWeaponType(clickedItem) == WeaponType.GLOVE) {
-            if (event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_ALL) {
-                ItemStack offhandItem = event.getInventory().getItem(40);
-
-                if (offhandItem != null && offhandItem.hasItemMeta() && weaponSystem.getWeaponType(offhandItem) == WeaponType.GLOVE) {
-                    event.getInventory().setItem(40, new ItemStack(Material.AIR));
-                }
-            }
-        }
-    }
-
+//    // todo: this doesnt work
+//    @EventHandler
+//    public void removeBothGlovesAtOnce(InventoryClickEvent event) {
+//        ItemStack clickedItem = event.getCurrentItem();
+//        WeaponSystem weaponSystem = new WeaponSystem(nmlWeapons);
+//
+//        if (clickedItem != null && clickedItem.hasItemMeta() && weaponSystem.getWeaponType(clickedItem) == WeaponType.GLOVE) {
+//            if (event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_ALL) {
+//                ItemStack offhandItem = event.getInventory().getItem(40);
+//
+//                if (offhandItem != null && offhandItem.hasItemMeta() && weaponSystem.getWeaponType(offhandItem) == WeaponType.GLOVE) {
+//                    event.getInventory().setItem(40, new ItemStack(Material.AIR));
+//                }
+//            }
+//        }
+//    }
 }

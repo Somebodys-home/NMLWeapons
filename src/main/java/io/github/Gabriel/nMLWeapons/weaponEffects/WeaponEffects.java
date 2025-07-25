@@ -246,7 +246,7 @@ public class WeaponEffects {
     }
 
     public void bowEffect(Arrow arrow, Player player) {
-        arrow.setVelocity(player.getLocation().getDirection().normalize().multiply(3.5));
+        arrow.setVelocity(player.getLocation().getDirection().normalize().multiply(3));
 
         new BukkitRunnable() {
             @Override
@@ -259,7 +259,7 @@ public class WeaponEffects {
 
                 player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
             }
-        }.runTaskTimer(nmlWeapons, 2L, 5L);
+        }.runTaskTimer(nmlWeapons, 2L, 10L);
     }
 
     public void magicalEffect(ItemStack weapon, Player player) {

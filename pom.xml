@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.Gabriel</groupId>
+    <groupId>io.github.NoOne</groupId>
     <artifactId>NMLWeapons</artifactId>
     <version>1</version>
     <packaging>jar</packaging>
@@ -14,7 +14,7 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <shade.prefix>io.github.Gabriel.NoOne.shaded</shade.prefix>
+        <shade.prefix>io.github.NoOne.shaded</shade.prefix>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
