@@ -15,15 +15,10 @@ public final class NMLWeapons extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
         Plugin plugin = Bukkit.getPluginManager().getPlugin("NMLPlayerStats");
         if (plugin instanceof NMLPlayerStats statsPlugin) {
             nmlPlayerStats = statsPlugin;
             profileManager = nmlPlayerStats.getProfileManager();
-        } else {
-            getLogger().severe("Failed to find NMLPlayerStats! Disabling...");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
         }
 
         weaponSystem = new WeaponSystem(this);

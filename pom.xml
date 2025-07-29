@@ -57,6 +57,9 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/**</exclude>
+                                        <!-- EXCLUDE any plugin classes from being shaded -->
+                                        <exclude>io/github/NoOne/nMLPlayerStats/**</exclude>
+                                        <exclude>io/github/Gabriel/damagePlugin/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -70,6 +73,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
@@ -104,13 +108,19 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
-            <version>bd2345ac66</version>
+            <version>a89b8c6b16</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>DamagePlugin</artifactId>
-            <version>fbc9e9a526</version>
+            <version>8883586c8f</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Somebodys-home</groupId>
+            <artifactId>NMLItems</artifactId>
+            <version>e5d2999fd6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
