@@ -6,7 +6,7 @@ authors: [ Gabriel Nicolas ]
 depend:
   - NMLPlayerStats
   - DamagePlugin
-  - NNMLItems
+  - NMLItems
 commands:
   generateWeapon:
     description: generates a weapon for the player

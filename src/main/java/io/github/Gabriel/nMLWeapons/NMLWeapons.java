@@ -1,5 +1,7 @@
 package io.github.Gabriel.nMLWeapons;
 
+import io.github.NoOne.nMLItems.ItemSystem;
+import io.github.NoOne.nMLItems.NMLItems;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.Bukkit;
@@ -9,16 +11,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class NMLWeapons extends JavaPlugin {
     private NMLWeapons instance;
     private static NMLPlayerStats nmlPlayerStats;
-    private ProfileManager profileManager;
+    private NMLItems nmlItems;
+    private ItemSystem itemSystem;
     private WeaponSystem weaponSystem;
 
     @Override
     public void onEnable() {
         instance = this;
+        nmlItems = JavaPlugin.getPlugin(NMLItems.class);
+
+        itemSystem = nmlItems.getItemSystem();
+
         Plugin plugin = Bukkit.getPluginManager().getPlugin("NMLPlayerStats");
         if (plugin instanceof NMLPlayerStats statsPlugin) {
             nmlPlayerStats = statsPlugin;
-            profileManager = nmlPlayerStats.getProfileManager();
         }
 
         weaponSystem = new WeaponSystem(this);
@@ -35,11 +41,11 @@ public final class NMLWeapons extends JavaPlugin {
         return nmlPlayerStats;
     }
 
-    public ProfileManager getProfileManager() {
-        return profileManager;
-    }
-
     public WeaponSystem getWeaponSystem() {
         return weaponSystem;
+    }
+
+    public ItemSystem getItemSystem() {
+        return itemSystem;
     }
 }

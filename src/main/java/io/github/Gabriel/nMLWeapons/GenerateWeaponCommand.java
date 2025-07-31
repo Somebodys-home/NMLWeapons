@@ -28,7 +28,7 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
             int level = Integer.parseInt(args[0]);
             String rarity = args[1];
             String type = args[2];
-            ItemStack weapon = weaponSystem.generateWeapon(player, ItemType.getWeaponTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
+            ItemStack weapon = weaponSystem.generateWeapon(player, ItemType.getItemTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
 
             player.getInventory().setItemInMainHand(weapon);
         }
