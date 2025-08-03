@@ -134,7 +134,7 @@ public class WeaponEffects {
             }
         }
 
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, .5f);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2f, .5f);
     }
 
     public void hammerEffect(ItemStack weapon, Player player) {
@@ -200,7 +200,7 @@ public class WeaponEffects {
         player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
     }
 
-    public void gloveEffect(ItemStack weapon, Player player) {
+    public void gloveEffect(ItemStack weapon, Player player, int punchPattern) {
         if (player.hasCooldown(weapon.getType())) return;
 
         player.setCooldown(weapon.getType(), 25); // 1.5s cooldown
@@ -212,6 +212,10 @@ public class WeaponEffects {
         halfDamage.replaceAll((k, v) -> v / 2); // actually halves the damage
         particleLocation.add(direction);
         player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
+
+        if (punchPattern == 0) {
+            player.swingOffHand();
+        }
 
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
             if (entity != player && !entity.hasMetadata("been hit")) {
@@ -239,7 +243,12 @@ public class WeaponEffects {
 
                 particleLocation.add(direction);
                 player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-                player.swingOffHand();
+
+                if (punchPattern == 0) {
+                    player.swingMainHand();
+                } else {
+                    player.swingOffHand();
+                }
 
                 for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
                     if (entity != player && !entity.hasMetadata("been hit")) {

@@ -27,13 +27,11 @@ import static io.github.Gabriel.damagePlugin.customDamage.DamageType.LIGHTNING;
 import static io.github.Gabriel.damagePlugin.customDamage.DamageType.PURE;
 
 public class WeaponSystem {
-    private ItemSystem itemSystem;
     private DamageManager damageManager;
 
 
     public WeaponSystem(NMLWeapons nmlWeapons) {
         damageManager = new DamageManager();
-        itemSystem = nmlWeapons.getItemSystem();
     }
 
     public ItemStack generateWeapon(Player receiver, ItemType type, ItemRarity rarity, int level) {
@@ -42,14 +40,14 @@ public class WeaponSystem {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = new ArrayList<>();
 
-        pdc.set(itemSystem.makeItemTypeKey(type), PersistentDataType.INTEGER, 1);
-        pdc.set(itemSystem.makeItemRarityKey(rarity), PersistentDataType.INTEGER, 1);
-        pdc.set(itemSystem.getLevelKey(), PersistentDataType.INTEGER, level);
+        pdc.set(ItemSystem.makeItemTypeKey(type), PersistentDataType.INTEGER, 1);
+        pdc.set(ItemSystem.makeItemRarityKey(rarity), PersistentDataType.INTEGER, 1);
+        pdc.set(ItemSystem.getLevelKey(), PersistentDataType.INTEGER, level);
         weapon.setItemMeta(meta);
 
         String name = generateWeaponName(type, rarity, level);
         meta.setDisplayName(name);
-        pdc.set(itemSystem.getOriginalNameKey(), PersistentDataType.STRING, name);
+        pdc.set(ItemSystem.getOriginalNameKey(), PersistentDataType.STRING, name);
 
         lore.add(ItemRarity.getItemRarityColor(rarity) + "" + ChatColor.BOLD + ItemRarity.getItemRarityString(rarity).toUpperCase() + " " + ItemType.getItemTypeString(type).toUpperCase());
         meta.setLore(lore);
@@ -57,7 +55,7 @@ public class WeaponSystem {
 
         addASCIIArtToWeapon(weapon, type);
         generateWeaponDamage(weapon, type, rarity, level);
-        itemSystem.updateUnusableItemName(weapon, itemSystem.isItemUsable(weapon, receiver));
+        ItemSystem.updateUnusableItemName(weapon, ItemSystem.isItemUsable(weapon, receiver));
 
         return weapon;
     }

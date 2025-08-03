@@ -11,16 +11,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class NMLWeapons extends JavaPlugin {
     private NMLWeapons instance;
     private static NMLPlayerStats nmlPlayerStats;
-    private NMLItems nmlItems;
-    private ItemSystem itemSystem;
     private WeaponSystem weaponSystem;
 
     @Override
     public void onEnable() {
         instance = this;
-        nmlItems = JavaPlugin.getPlugin(NMLItems.class);
-
-        itemSystem = nmlItems.getItemSystem();
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("NMLPlayerStats");
         if (plugin instanceof NMLPlayerStats statsPlugin) {
@@ -43,9 +38,5 @@ public final class NMLWeapons extends JavaPlugin {
 
     public WeaponSystem getWeaponSystem() {
         return weaponSystem;
-    }
-
-    public ItemSystem getItemSystem() {
-        return itemSystem;
     }
 }
