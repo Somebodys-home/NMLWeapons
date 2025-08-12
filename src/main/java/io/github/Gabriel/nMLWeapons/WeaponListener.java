@@ -170,10 +170,9 @@ public class WeaponListener implements Listener {
     public void dontThrowSpears(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
-            assert item != null;
-            ItemMeta meta = item.getItemMeta();
 
-            if (meta != null && ItemSystem.getItemTypeFromItemStack(item) == ItemType.SPEAR) {
+            if (item == null) return;
+            if (ItemSystem.getItemTypeFromItemStack(item) == ItemType.SPEAR) {
                 event.setCancelled(true);
             }
         }
