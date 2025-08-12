@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
-            <version>cc108a3c56</version>
+            <version>616658afdf</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLItems</artifactId>
-            <version>f4c744a93c</version>
+            <version>605d480cd5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
