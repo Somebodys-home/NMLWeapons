@@ -22,7 +22,7 @@ public final class NMLWeapons extends JavaPlugin {
             nmlPlayerStats = statsPlugin;
         }
 
-        weaponSystem = new WeaponSystem(this);
+        weaponSystem = new WeaponSystem();
 
         getServer().getPluginManager().registerEvents(new WeaponListener(this), this);
         getCommand("generateWeapon").setExecutor(new GenerateWeaponCommand(this));

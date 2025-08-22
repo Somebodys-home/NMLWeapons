@@ -1,15 +1,12 @@
 package io.github.Gabriel.nMLWeapons;
 
-import io.github.Gabriel.damagePlugin.customDamage.DamageManager;
-import io.github.Gabriel.damagePlugin.customDamage.DamageLore;
-import io.github.Gabriel.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemRarity;
+import io.github.NoOne.nMLItems.ItemStat;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
-import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.ChatColor;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -18,21 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.*;
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.AIR;
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.DARK;
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.EARTH;
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.LIGHT;
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.LIGHTNING;
-import static io.github.Gabriel.damagePlugin.customDamage.DamageType.PURE;
-
 public class WeaponSystem {
-    private DamageManager damageManager;
-
-
-    public WeaponSystem(NMLWeapons nmlWeapons) {
-        damageManager = new DamageManager();
-    }
+    public WeaponSystem() {}
 
     public ItemStack generateWeapon(Player receiver, ItemType type, ItemRarity rarity, int level) {
         ItemStack weapon = new ItemStack(ItemType.getItemTypeMaterial(type));
@@ -43,6 +27,8 @@ public class WeaponSystem {
         pdc.set(ItemSystem.makeItemTypeKey(type), PersistentDataType.INTEGER, 1);
         pdc.set(ItemSystem.makeItemRarityKey(rarity), PersistentDataType.INTEGER, 1);
         pdc.set(ItemSystem.getLevelKey(), PersistentDataType.INTEGER, level);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         weapon.setItemMeta(meta);
 
         String name = generateWeaponName(type, rarity, level);
@@ -71,7 +57,7 @@ public class WeaponSystem {
             nameSegments[0] = badAdjectives.get(ThreadLocalRandom.current().nextInt(badAdjectives.size()));
         } else if (rarity == ItemRarity.UNCOMMON) {
             nameSegments = new String[2];
-            List<String> goodAdjectives = new ArrayList<>(List.of("Pretty Alright", "Lifelong", "Based", "Neato Dorito", "Goofy Ahh", "Nobodies'"));
+            List<String> goodAdjectives = new ArrayList<>(List.of("Pretty Alright", "Lifelong", "Based", "Neato Dorito", "Goofy Ahh", "Nobodies'", "Knave's"));
             int randomAdjective = ThreadLocalRandom.current().nextInt(goodAdjectives.size());
 
             nameSegments[0] = goodAdjectives.get(randomAdjective);
@@ -82,47 +68,53 @@ public class WeaponSystem {
 
             nameSegments[0] = goodAdjectives.get(randomAdjective);
             goodAdjectives.remove(randomAdjective);
+            goodAdjectives.remove("Based");
+            goodAdjectives.remove("Nobodies'");
             nameSegments[1] = goodAdjectives.get(ThreadLocalRandom.current().nextInt(goodAdjectives.size()));
         } else if (rarity == ItemRarity.MYTHICAL) {
             nameSegments = new String[3];
-            List<String> greatAdjectives = new ArrayList<>(List.of("Amazing", "Godly", "King's", "Fabled", "Based", "W", "Legendary", "Goofy Ahh", "Nobodies'"));
+            List<String> greatAdjectives = new ArrayList<>(List.of("Amazing", "Godly", "King's", "Queen's", "Fabled", "Based", "W", "Legendaric", "Goofy Ahh", "Nobodies'"));
             int randomAdjective = ThreadLocalRandom.current().nextInt(greatAdjectives.size());
 
             nameSegments[0] = greatAdjectives.get(randomAdjective);
             greatAdjectives.remove(randomAdjective);
+            greatAdjectives.remove("Based");
+            greatAdjectives.remove("King's");
+            greatAdjectives.remove("Queen's");
+            greatAdjectives.remove("Nobodies'");
             nameSegments[1] = greatAdjectives.get(ThreadLocalRandom.current().nextInt(greatAdjectives.size()));
         }
 
         assert nameSegments != null;
         if (type == ItemType.SWORD) {
-            List<String> sword = new ArrayList<>(List.of("Sword", "Seax", "Scimitar"));
+            List<String> sword = new ArrayList<>(List.of("Sword", "Seax", "Scimitar", "Bigger Knife"));
             nameSegments[nameSegments.length - 1] = sword.get(ThreadLocalRandom.current().nextInt(sword.size()));
         } else if (type == ItemType.DAGGER) {
-            List<String> dagger = new ArrayList<>(List.of("Dagger"));
+            List<String> dagger = new ArrayList<>(List.of("Dagger", "Knife", "Cutlery"));
             nameSegments[nameSegments.length - 1] = dagger.get(ThreadLocalRandom.current().nextInt(dagger.size()));
         } else if (type == ItemType.AXE) {
-            List<String> axe = new ArrayList<>(List.of("Axe"));
+            List<String> axe = new ArrayList<>(List.of("Axe", "Hatchet", "Cleaver", "Battle Axe", "Tomahawk"));
             nameSegments[nameSegments.length - 1] = axe.get(ThreadLocalRandom.current().nextInt(axe.size()));
         } else if (type == ItemType.HAMMER) {
-            List<String> hammer = new ArrayList<>(List.of("Squeaky Toy", "Blunt", "Mallet", "Bonker", "Hammer"));
+            List<String> hammer = new ArrayList<>(List.of("Squeaky Toy", "Blunt", "Mallet", "Bonker", "Hammer", "Piko Piko"));
             nameSegments[nameSegments.length - 1] = hammer.get(ThreadLocalRandom.current().nextInt(hammer.size()));
         } else if (type == ItemType.SPEAR) {
-            List<String> spear = new ArrayList<>(List.of("Giant Arrow", "Javelin", "Military Fork", "Overcompensator", "Trident", "Spear"));
+            List<String> spear = new ArrayList<>(List.of("Giant Arrow", "Javelin", "Military Fork", "Overcompensator", "Trident", "Spear", "Spork"));
             nameSegments[nameSegments.length - 1] = spear.get(ThreadLocalRandom.current().nextInt(spear.size()));
         } else if (type == ItemType.GLOVE) {
-            List<String> glove = new ArrayList<>(List.of("Jawbreaker", "TKO", "Rock 'Em", "Sock 'Em", "Jojo's Reference", "Gloves"));
+            List<String> glove = new ArrayList<>(List.of("Jawbreaker", "TKO", "Rock 'Em", "Sock 'Em", "Failure", "Gloves"));
             nameSegments[nameSegments.length - 1] = glove.get(ThreadLocalRandom.current().nextInt(glove.size()));
         } else if (type == ItemType.BOW) {
-            List<String> bow = new ArrayList<>(List.of("Bow"));
+            List<String> bow = new ArrayList<>(List.of("Bow", "Peashooter", "Fling Sling", "...Gun?", "Yeet Cannon"));
             nameSegments[nameSegments.length - 1] = bow.get(ThreadLocalRandom.current().nextInt(bow.size()));
         } else if (type == ItemType.WAND) {
-            List<String> wand = new ArrayList<>(List.of("Wand"));
+            List<String> wand = new ArrayList<>(List.of("Wand", "Rabbit Maker"));
             nameSegments[nameSegments.length - 1] = wand.get(ThreadLocalRandom.current().nextInt(wand.size()));
         } else if (type == ItemType.STAFF) {
-            List<String> staff = new ArrayList<>(List.of("Staff"));
+            List<String> staff = new ArrayList<>(List.of("Staff", "Walking Stick"));
             nameSegments[nameSegments.length - 1] = staff.get(ThreadLocalRandom.current().nextInt(staff.size()));
         } else if (type == ItemType.CATALYST) {
-            List<String> catalyst = new ArrayList<>(List.of("Catalyst"));
+            List<String> catalyst = new ArrayList<>(List.of("Catalyst", "Grimoire", "Reading Material", "Textbook"));
             nameSegments[nameSegments.length - 1] = catalyst.get(ThreadLocalRandom.current().nextInt(catalyst.size()));
         }
 
@@ -189,53 +181,58 @@ public class WeaponSystem {
     }
 
     public void generateWeaponDamage(ItemStack weapon, ItemType type, ItemRarity rarity, int level) {
-        List<DamageType> possibleFirstDamageTypes = null;
-        List<DamageType> possibleSecondDamageTypes = null;
+        List<ItemStat> possibleFirstDamageTypes = null;
+        List<ItemStat> possibleSecondDamageTypes = null;
 
         switch (type) {
             case SWORD, AXE, HAMMER, SPEAR, GLOVE -> {
-                possibleFirstDamageTypes = new ArrayList<>(List.of(PHYSICAL));
-                possibleSecondDamageTypes = new ArrayList<>(List.of(PHYSICAL, FIRE, COLD, EARTH, LIGHTNING, AIR, LIGHT, DARK));
+                possibleFirstDamageTypes = new ArrayList<>(List.of(ItemStat.PHYSICALDAMAGE));
+                possibleSecondDamageTypes = new ArrayList<>(List.of(ItemStat.PHYSICALDAMAGE, ItemStat.FIREDAMAGE, ItemStat.COLDDAMAGE, ItemStat.EARTHDAMAGE,
+                                                                    ItemStat.LIGHTNINGDAMAGE, ItemStat.AIRDAMAGE, ItemStat.LIGHTDAMAGE, ItemStat.DARKDAMAGE));
             }
             case DAGGER, BOW -> {
-                possibleFirstDamageTypes = new ArrayList<>(List.of(PHYSICAL));
-                possibleSecondDamageTypes = new ArrayList<>(List.of(PHYSICAL, FIRE, COLD, EARTH, LIGHTNING, AIR, LIGHT, DARK, PURE));
+                possibleFirstDamageTypes = new ArrayList<>(List.of(ItemStat.PHYSICALDAMAGE));
+                possibleSecondDamageTypes = new ArrayList<>(List.of(ItemStat.PHYSICALDAMAGE, ItemStat.FIREDAMAGE, ItemStat.COLDDAMAGE, ItemStat.EARTHDAMAGE,
+                                                                    ItemStat.LIGHTNINGDAMAGE, ItemStat.AIRDAMAGE, ItemStat.LIGHTDAMAGE, ItemStat.DARKDAMAGE,
+                                                                    ItemStat.PUREDAMAGE));
             }
             case WAND, STAFF, CATALYST -> {
-                possibleFirstDamageTypes = new ArrayList<>(List.of(FIRE, COLD, EARTH, LIGHTNING, AIR, LIGHT, DARK));
-                possibleSecondDamageTypes = new ArrayList<>(List.of(FIRE, COLD, EARTH, LIGHTNING, AIR, LIGHT, DARK));
+                possibleFirstDamageTypes = new ArrayList<>(List.of(ItemStat.PHYSICALDAMAGE, ItemStat.FIREDAMAGE, ItemStat.COLDDAMAGE, ItemStat.EARTHDAMAGE,
+                                                                   ItemStat.LIGHTNINGDAMAGE, ItemStat.AIRDAMAGE, ItemStat.LIGHTDAMAGE, ItemStat.DARKDAMAGE));
+                possibleSecondDamageTypes = new ArrayList<>(List.of(ItemStat.PHYSICALDAMAGE, ItemStat.FIREDAMAGE, ItemStat.COLDDAMAGE, ItemStat.EARTHDAMAGE,
+                                                                    ItemStat.LIGHTNINGDAMAGE, ItemStat.AIRDAMAGE, ItemStat.LIGHTDAMAGE, ItemStat.DARKDAMAGE));
             }
         }
 
-        DamageType firstType = possibleFirstDamageTypes.get(ThreadLocalRandom.current().nextInt(possibleFirstDamageTypes.size()));
+        ItemStat firstType = possibleFirstDamageTypes.get(ThreadLocalRandom.current().nextInt(possibleFirstDamageTypes.size()));
         int firstDamage = level * 2;
-        DamageType secondType = possibleSecondDamageTypes.get(ThreadLocalRandom.current().nextInt(possibleSecondDamageTypes.size()));
+        ItemStat secondType = possibleSecondDamageTypes.get(ThreadLocalRandom.current().nextInt(possibleSecondDamageTypes.size()));
         int secondDamage = level;
 
         switch (rarity) {
             case COMMON -> {
-                damageManager.setDamage(weapon, firstType, firstDamage);
+                ItemSystem.setStat(weapon, firstType, firstDamage);
             }
             case UNCOMMON, RARE -> {
                 if (firstType == secondType) {
-                    damageManager.setDamage(weapon, firstType, firstDamage + secondDamage);
+                    ItemSystem.setStat(weapon, firstType, firstDamage + secondDamage);
                 } else {
-                    damageManager.setDamage(weapon, firstType, firstDamage);
-                    damageManager.setDamage(weapon, secondType, secondDamage);
+                    ItemSystem.setStat(weapon, firstType, firstDamage);
+                    ItemSystem.setStat(weapon, secondType, secondDamage);
                 }
             }
             case MYTHICAL -> {
                 firstDamage = level * 3;
 
                 if (firstType == secondType) {
-                    damageManager.setDamage(weapon, firstType, firstDamage + secondDamage);
+                    ItemSystem.setStat(weapon, firstType, firstDamage + secondDamage);
                 } else {
-                    damageManager.setDamage(weapon, firstType, firstDamage);
-                    damageManager.setDamage(weapon, secondType, secondDamage);
+                    ItemSystem.setStat(weapon, firstType, firstDamage);
+                    ItemSystem.setStat(weapon, secondType, secondDamage);
                 }
             }
         }
 
-        DamageLore.updateLoreWithElementalDamage(weapon, weapon.getItemMeta());
+        ItemSystem.updateLoreWithItemStats(weapon);
     }
 }

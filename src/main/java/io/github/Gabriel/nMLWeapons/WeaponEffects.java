@@ -1,8 +1,11 @@
 package io.github.Gabriel.nMLWeapons;
 
+import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
 import io.github.Gabriel.damagePlugin.customDamage.CustomDamager;
-import io.github.Gabriel.damagePlugin.customDamage.DamageManager;
+import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
 import io.github.Gabriel.damagePlugin.customDamage.DamageType;
+import io.github.NoOne.nMLItems.ItemSystem;
+import io.github.NoOne.nMLItems.ItemType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -12,6 +15,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
@@ -48,7 +52,7 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                CustomDamager.doDamage(livingEntity, player, new DamageManager().getAllDamageStats(weapon));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon))));
                 livingEntity.removeMetadata("been hit", nmlWeapons);
             }
         }
@@ -76,10 +80,10 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                CustomDamager.doDamage(livingEntity, player, new DamageManager().getAllDamageStats(weapon));
-                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(0.2);
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon))));
+                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(0.1);
 
-                livingEntity.setNoDamageTicks(0);
+                livingEntity.setNoDamageTicks(5);
                 livingEntity.setVelocity(knockback);
                 livingEntity.removeMetadata("been hit", nmlWeapons);
             }
@@ -129,7 +133,7 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                CustomDamager.doDamage(livingEntity, player, new DamageManager().getAllDamageStats(weapon));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon))));
                 livingEntity.removeMetadata("been hit", nmlWeapons);
             }
         }
@@ -158,7 +162,7 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                CustomDamager.doDamage(livingEntity, player, new DamageManager().getAllDamageStats(weapon));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon))));
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
                 knockback.setY(.2);
@@ -192,7 +196,7 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                CustomDamager.doDamage(livingEntity, player, new DamageManager().getAllDamageStats(weapon));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon))));
                 livingEntity.removeMetadata("been hit", nmlWeapons);
             }
         }
@@ -202,12 +206,13 @@ public class WeaponEffects {
 
     public void gloveEffect(ItemStack weapon, Player player, int punchPattern) {
         if (player.hasCooldown(weapon.getType())) return;
+        PlayerInventory playerInventory = player.getInventory();
 
-        player.setCooldown(weapon.getType(), 25); // 1.5s cooldown
+        player.setCooldown(weapon.getType(), 20); // 1s cooldown
 
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
-        HashMap<DamageType, Double> halfDamage = new DamageManager().getAllDamageStats(weapon);
+        HashMap<DamageType, Double> halfDamage = DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon));
 
         halfDamage.replaceAll((k, v) -> v / 2); // actually halves the damage
         particleLocation.add(direction);
@@ -227,46 +232,50 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 CustomDamager.doDamage(livingEntity, player, halfDamage);
-                livingEntity.setNoDamageTicks(0);
+                livingEntity.setNoDamageTicks(7);
                 livingEntity.removeMetadata("been hit", nmlWeapons);
             }
         }
 
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
 
-        // second hit on a .35s delay
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Location particleLocation = player.getLocation().add(0, 1, 0);
-                Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
+        if (ItemSystem.getItemTypeFromItemStack(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
+            // second hit on a .35s delay
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Location particleLocation = player.getLocation().add(0, 1, 0);
+                    Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
 
-                particleLocation.add(direction);
-                player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
+                    particleLocation.add(direction);
+                    player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
 
-                if (punchPattern == 0) {
-                    player.swingMainHand();
-                } else {
-                    player.swingOffHand();
-                }
-
-                for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
-                    if (entity != player && !entity.hasMetadata("been hit")) {
-                        hitEntityUUIDs.add(entity.getUniqueId());
-                        entity.setMetadata("been hit", new FixedMetadataValue(nmlWeapons, true));
+                    if (punchPattern == 0) {
+                        player.swingMainHand();
+                    } else {
+                        player.swingOffHand();
                     }
-                }
 
-                for (UUID uuid : hitEntityUUIDs) {
-                    if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                        CustomDamager.doDamage(livingEntity, player, halfDamage);
-                        livingEntity.removeMetadata("been hit", nmlWeapons);
+                    for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
+                        if (entity != player && !entity.hasMetadata("been hit")) {
+                            hitEntityUUIDs.add(entity.getUniqueId());
+                            entity.setMetadata("been hit", new FixedMetadataValue(nmlWeapons, true));
+                        }
                     }
-                }
 
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
-            }
-        }.runTaskLater(nmlWeapons, 7L);
+                    for (UUID uuid : hitEntityUUIDs) {
+                        if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
+                            CustomDamager.doDamage(livingEntity, player, halfDamage);
+                            livingEntity.removeMetadata("been hit", nmlWeapons);
+                        }
+                    }
+
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
+                }
+            }.runTaskLater(nmlWeapons, 7L);
+        } else {
+            player.sendMessage("§c⚠ §nThis is a two-handed weapon!§r§c ⚠");
+        }
     }
 
     public void bowEffect(Arrow arrow, Player player) {
@@ -333,7 +342,7 @@ public class WeaponEffects {
                     if (i > particleInstances) {
                         for (UUID uuid : hitEntityUUIDs) {
                             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity2) {
-                                CustomDamager.doDamage(livingEntity2, player, new DamageManager().getAllDamageStats(weapon));
+                                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(weapon))));
                                 player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 0, 0, 0);
                                 livingEntity2.removeMetadata("been hit", nmlWeapons);
                             }
