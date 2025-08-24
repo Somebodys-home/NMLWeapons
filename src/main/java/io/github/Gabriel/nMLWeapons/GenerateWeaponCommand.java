@@ -2,7 +2,6 @@ package io.github.Gabriel.nMLWeapons;
 
 import io.github.NoOne.nMLItems.ItemRarity;
 import io.github.NoOne.nMLItems.ItemType;
-import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,10 +15,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
-    private WeaponSystem weaponSystem;
+    private WeaponGenerator weaponGenerator;
 
     public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
-        weaponSystem = nmlWeapons.getWeaponSystem();
+        weaponGenerator = nmlWeapons.getWeaponSystem();
     }
 
     @Override
@@ -28,7 +27,7 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
             int level = Integer.parseInt(args[0]);
             String rarity = args[1];
             String type = args[2];
-            ItemStack weapon = weaponSystem.generateWeapon(player, ItemType.getItemTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
+            ItemStack weapon = weaponGenerator.generateWeapon(player, ItemType.getItemTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
 
             player.getInventory().addItem(weapon);
         }

@@ -114,13 +114,13 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>DamagePlugin</artifactId>
-            <version>9d377f1725</version>
+            <version>24de36a48c</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLItems</artifactId>
-            <version>c183eaa0af</version>
+            <version>cbfdcaa2a1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -239,7 +239,7 @@ public class WeaponEffects {
 
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
 
-        if (ItemSystem.getItemTypeFromItemStack(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
+        if (ItemSystem.getItemType(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
             // second hit on a .35s delay
             new BukkitRunnable() {
                 @Override
