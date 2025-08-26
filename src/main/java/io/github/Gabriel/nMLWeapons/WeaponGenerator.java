@@ -11,11 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import static io.github.NoOne.nMLItems.ItemRarity.*;
 import static io.github.NoOne.nMLItems.ItemStat.*;
+import static io.github.NoOne.nMLItems.ItemType.*;
 
 public class WeaponGenerator {
     public WeaponGenerator() {}
@@ -35,12 +35,13 @@ public class WeaponGenerator {
         weapon.setItemMeta(meta);
 
         // making name
-        String name = generateWeaponName(type, rarity, level);
+        String name = generateWeaponName(type, rarity);
         meta.setDisplayName(name);
         pdc.set(ItemSystem.getOriginalNameKey(), PersistentDataType.STRING, name);
 
         // adding the lore
-        lore.add(getItemRarityColor(rarity) + "" + ChatColor.BOLD + getItemRarityString(rarity).toUpperCase() + " " + ItemType.getItemTypeString(type).toUpperCase());
+        lore.add("§o§fLv. " + level + "§r " + getItemRarityColor(rarity) + ChatColor.BOLD + getItemRarityString(rarity).toUpperCase() + " " + ItemType.getItemTypeString(type).toUpperCase());
+        lore.add("");
         meta.setLore(lore);
         weapon.setItemMeta(meta);
         addASCIIArtToWeapon(weapon, type);
@@ -54,7 +55,7 @@ public class WeaponGenerator {
         return weapon;
     }
 
-    public String generateWeaponName(ItemType type, ItemRarity rarity, int level) {
+    public String generateWeaponName(ItemType type, ItemRarity rarity) {
         String[] nameSegments = null;
         String name = "";
 
@@ -101,7 +102,7 @@ public class WeaponGenerator {
             List<String> dagger = new ArrayList<>(List.of("Dagger", "Knife", "Cutlery"));
             nameSegments[nameSegments.length - 1] = dagger.get(ThreadLocalRandom.current().nextInt(dagger.size()));
         } else if (type == ItemType.AXE) {
-            List<String> axe = new ArrayList<>(List.of("Axe", "Hatchet", "Cleaver", "Battle Axe", "Tomahawk"));
+            List<String> axe = new ArrayList<>(List.of("Axe", "Hatchet", "Cleaver", "Battle Axe", "Tomahawk", "Chopper"));
             nameSegments[nameSegments.length - 1] = axe.get(ThreadLocalRandom.current().nextInt(axe.size()));
         } else if (type == ItemType.HAMMER) {
             List<String> hammer = new ArrayList<>(List.of("Squeaky Toy", "Blunt", "Mallet", "Bonker", "Hammer", "Piko Piko"));
@@ -109,7 +110,7 @@ public class WeaponGenerator {
         } else if (type == ItemType.SPEAR) {
             List<String> spear = new ArrayList<>(List.of("Giant Arrow", "Javelin", "Military Fork", "Overcompensator", "Trident", "Spear", "Spork"));
             nameSegments[nameSegments.length - 1] = spear.get(ThreadLocalRandom.current().nextInt(spear.size()));
-        } else if (type == ItemType.GLOVE) {
+        } else if (type == GLOVE) {
             List<String> glove = new ArrayList<>(List.of("Jawbreaker", "TKO", "Rock 'Em", "Sock 'Em", "Failure", "Gloves"));
             nameSegments[nameSegments.length - 1] = glove.get(ThreadLocalRandom.current().nextInt(glove.size()));
         } else if (type == ItemType.BOW) {
@@ -126,7 +127,7 @@ public class WeaponGenerator {
             nameSegments[nameSegments.length - 1] = catalyst.get(ThreadLocalRandom.current().nextInt(catalyst.size()));
         }
 
-        name += "§o§fLv. " + level + "§r " + getItemRarityColor(rarity);
+        name += getItemRarityColor(rarity);
         for (int i = 0; i < nameSegments.length; i++) {
             if (i == nameSegments.length - 1) {
                 name += nameSegments[i];
@@ -162,7 +163,7 @@ public class WeaponGenerator {
             lore.add("§7                           \\`-._");
             lore.add("§7♦========♦========♦   _>");
             lore.add("§7                           /.-'");
-        } else if (type == ItemType.GLOVE) {
+        } else if (type == GLOVE) {
             lore.add("§7‾‾‾‾‾‾‾‾‾|♦|‾‾‾‾‾‾‾‾‾");
             lore.add("§7\\_   @_|♦|_@   _/");
             lore.add("§7   \\__)    (__/");
@@ -184,6 +185,7 @@ public class WeaponGenerator {
             lore.add("§7  \\_\\    /_/");
         }
 
+        lore.add("");
         meta.setLore(lore);
         weapon.setItemMeta(meta);
     }
@@ -276,6 +278,10 @@ public class WeaponGenerator {
             Map.Entry<ItemStat, Integer> randomEntry = statEntries.get(new Random().nextInt(statEntries.size()));
             ItemStat randomItemStat = randomEntry.getKey();
             int randomStatValue = randomEntry.getValue();
+
+            if (ItemSystem.getItemType(weapon) == GLOVE && randomItemStat == CRITDAMAGE) {
+                randomEntry.setValue(randomStatValue * 2);
+            }
 
             selectedStats.merge(randomItemStat, randomStatValue, Integer::sum);
         }

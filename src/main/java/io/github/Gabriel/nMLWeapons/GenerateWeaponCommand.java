@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 
 public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     private WeaponGenerator weaponGenerator;
+    private WeaponManager weaponManager;
 
     public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
         weaponGenerator = nmlWeapons.getWeaponSystem();
+        weaponManager = new WeaponManager(nmlWeapons);
     }
 
     @Override
@@ -30,6 +32,11 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
             ItemStack weapon = weaponGenerator.generateWeapon(player, ItemType.getItemTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
 
             player.getInventory().addItem(weapon);
+
+            ItemStack mainHand = player.getInventory().getItemInMainHand();
+            if (mainHand.isSimilar(weapon)) {
+                weaponManager.addWeaponStatsToPlayer(player, mainHand);
+            }
         }
         return true;
     }

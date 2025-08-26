@@ -108,13 +108,13 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
-            <version>616658afdf</version>
+            <version>e06dc4c45c</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>DamagePlugin</artifactId>
-            <version>24de36a48c</version>
+            <version>c55a23e666</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
