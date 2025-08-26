@@ -4,6 +4,7 @@ import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
 import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
+import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -21,15 +22,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import java.util.Objects;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
+    private NMLPlayerStats nmlPlayerStats;
     private WeaponManager weaponManager;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
+        nmlPlayerStats = NMLWeapons.getNmlPlayerStats();
         weaponManager = new WeaponManager(nmlWeapons);
     }
 
@@ -89,7 +91,7 @@ public class WeaponListener implements Listener {
 
                 event.setDamage(0);
                 arrow.remove();
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, DamageConverter.convertStatMap2DamageTypes(ItemSystem.getAllDamageStats(bow))));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
     }
