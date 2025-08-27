@@ -51,7 +51,7 @@ public class WeaponListener implements Listener {
                     case SPEAR -> weaponEffects.spearEffect(weapon, player);
                     case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
                     case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
-                    case BOW, SHIELD, HELMET, CHESTPLATE, LEGGINGS, BOOTS, LIGHT, MEDIUM, HEAVY -> {}
+                    case BOW, SHIELD, QUIVER, HELMET, CHESTPLATE, LEGGINGS, BOOTS, LIGHT, MEDIUM, HEAVY -> {}
                     case null -> {}
                 }
             }

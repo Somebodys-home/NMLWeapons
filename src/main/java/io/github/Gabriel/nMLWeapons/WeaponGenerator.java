@@ -35,7 +35,7 @@ public class WeaponGenerator {
         weapon.setItemMeta(meta);
 
         // making name
-        String name = generateWeaponName(type, rarity);
+        String name = ItemSystem.generateItemName(type, null, rarity);
         meta.setDisplayName(name);
         pdc.set(ItemSystem.getOriginalNameKey(), PersistentDataType.STRING, name);
 
@@ -53,90 +53,6 @@ public class WeaponGenerator {
         ItemSystem.updateUnusableItemName(weapon, ItemSystem.isItemUsable(weapon, receiver));
 
         return weapon;
-    }
-
-    public String generateWeaponName(ItemType type, ItemRarity rarity) {
-        String[] nameSegments = null;
-        String name = "";
-
-        if (rarity == COMMON) {
-            nameSegments = new String[2];
-            List<String> badAdjectives = new ArrayList<>(List.of("Garbage", "Awful", "Pitiful", "You Deserve This", "Disgusting", "Be Better", "Babies' First", "Oh God That", "Rotten", "Poor", "Degrading", "Forgotten", "Racist"));
-
-            nameSegments[0] = badAdjectives.get(ThreadLocalRandom.current().nextInt(badAdjectives.size()));
-        } else if (rarity == UNCOMMON) {
-            nameSegments = new String[2];
-            List<String> goodAdjectives = new ArrayList<>(List.of("Pretty Alright", "Lifelong", "Based", "Neato Dorito", "Goofy Ahh", "Nobodies'", "Knave's"));
-            int randomAdjective = ThreadLocalRandom.current().nextInt(goodAdjectives.size());
-
-            nameSegments[0] = goodAdjectives.get(randomAdjective);
-        } else if (rarity == RARE) {
-            nameSegments = new String[3];
-            List<String> goodAdjectives = new ArrayList<>(List.of("Pretty Alright", "Solid", "Well-Made", "Lifelong", "Based", "W", "Almost Mythical", "Neato Dorito", "Goofy Ahh", "Nobodies'"));
-            int randomAdjective = ThreadLocalRandom.current().nextInt(goodAdjectives.size());
-
-            nameSegments[0] = goodAdjectives.get(randomAdjective);
-            goodAdjectives.remove(randomAdjective);
-            goodAdjectives.remove("Based");
-            goodAdjectives.remove("Nobodies'");
-            nameSegments[1] = goodAdjectives.get(ThreadLocalRandom.current().nextInt(goodAdjectives.size()));
-        } else if (rarity == MYTHICAL) {
-            nameSegments = new String[3];
-            List<String> greatAdjectives = new ArrayList<>(List.of("Amazing", "Godly", "King's", "Queen's", "Fabled", "Based", "W", "Legendaric", "Goofy Ahh", "Nobodies'"));
-            int randomAdjective = ThreadLocalRandom.current().nextInt(greatAdjectives.size());
-
-            nameSegments[0] = greatAdjectives.get(randomAdjective);
-            greatAdjectives.remove(randomAdjective);
-            greatAdjectives.remove("Based");
-            greatAdjectives.remove("King's");
-            greatAdjectives.remove("Queen's");
-            greatAdjectives.remove("Nobodies'");
-            nameSegments[1] = greatAdjectives.get(ThreadLocalRandom.current().nextInt(greatAdjectives.size()));
-        }
-
-        assert nameSegments != null;
-        if (type == ItemType.SWORD) {
-            List<String> sword = new ArrayList<>(List.of("Sword", "Seax", "Scimitar", "Bigger Knife"));
-            nameSegments[nameSegments.length - 1] = sword.get(ThreadLocalRandom.current().nextInt(sword.size()));
-        } else if (type == ItemType.DAGGER) {
-            List<String> dagger = new ArrayList<>(List.of("Dagger", "Knife", "Cutlery"));
-            nameSegments[nameSegments.length - 1] = dagger.get(ThreadLocalRandom.current().nextInt(dagger.size()));
-        } else if (type == ItemType.AXE) {
-            List<String> axe = new ArrayList<>(List.of("Axe", "Hatchet", "Cleaver", "Battle Axe", "Tomahawk", "Chopper"));
-            nameSegments[nameSegments.length - 1] = axe.get(ThreadLocalRandom.current().nextInt(axe.size()));
-        } else if (type == ItemType.HAMMER) {
-            List<String> hammer = new ArrayList<>(List.of("Squeaky Toy", "Blunt", "Mallet", "Bonker", "Hammer", "Piko Piko"));
-            nameSegments[nameSegments.length - 1] = hammer.get(ThreadLocalRandom.current().nextInt(hammer.size()));
-        } else if (type == ItemType.SPEAR) {
-            List<String> spear = new ArrayList<>(List.of("Giant Arrow", "Javelin", "Military Fork", "Overcompensator", "Trident", "Spear", "Spork"));
-            nameSegments[nameSegments.length - 1] = spear.get(ThreadLocalRandom.current().nextInt(spear.size()));
-        } else if (type == GLOVE) {
-            List<String> glove = new ArrayList<>(List.of("Jawbreaker", "TKO", "Rock 'Em", "Sock 'Em", "Failure", "Gloves"));
-            nameSegments[nameSegments.length - 1] = glove.get(ThreadLocalRandom.current().nextInt(glove.size()));
-        } else if (type == ItemType.BOW) {
-            List<String> bow = new ArrayList<>(List.of("Bow", "Peashooter", "Fling Sling", "...Gun?", "Yeet Cannon"));
-            nameSegments[nameSegments.length - 1] = bow.get(ThreadLocalRandom.current().nextInt(bow.size()));
-        } else if (type == ItemType.WAND) {
-            List<String> wand = new ArrayList<>(List.of("Wand", "Rabbit Maker", "Boom Stick"));
-            nameSegments[nameSegments.length - 1] = wand.get(ThreadLocalRandom.current().nextInt(wand.size()));
-        } else if (type == ItemType.STAFF) {
-            List<String> staff = new ArrayList<>(List.of("Staff", "Walking Stick", "Cane"));
-            nameSegments[nameSegments.length - 1] = staff.get(ThreadLocalRandom.current().nextInt(staff.size()));
-        } else if (type == ItemType.CATALYST) {
-            List<String> catalyst = new ArrayList<>(List.of("Catalyst", "Grimoire", "Reading Material", "Textbook"));
-            nameSegments[nameSegments.length - 1] = catalyst.get(ThreadLocalRandom.current().nextInt(catalyst.size()));
-        }
-
-        name += getItemRarityColor(rarity);
-        for (int i = 0; i < nameSegments.length; i++) {
-            if (i == nameSegments.length - 1) {
-                name += nameSegments[i];
-            } else {
-                name += nameSegments[i] + " ";
-            }
-        }
-
-        return name;
     }
 
     public void addASCIIArtToWeapon(ItemStack weapon, ItemType type) {

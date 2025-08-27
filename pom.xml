@@ -120,7 +120,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLItems</artifactId>
-            <version>cbfdcaa2a1</version>
+            <version>283d90ab48</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
