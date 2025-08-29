@@ -5,6 +5,7 @@ import io.github.NoOne.nMLItems.ItemStat;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +32,7 @@ public class WeaponGenerator {
         pdc.set(ItemSystem.makeItemRarityKey(rarity), PersistentDataType.INTEGER, 1);
         pdc.set(ItemSystem.getLevelKey(), PersistentDataType.INTEGER, level);
         meta.setUnbreakable(true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
         weapon.setItemMeta(meta);
 
         // making name
@@ -51,6 +52,10 @@ public class WeaponGenerator {
 
         // is weapon unusable?
         ItemSystem.updateUnusableItemName(weapon, ItemSystem.isItemUsable(weapon, receiver));
+
+        if (type == BOW) {
+            weapon.addEnchantment(Enchantment.INFINITY, 1);
+        }
 
         return weapon;
     }

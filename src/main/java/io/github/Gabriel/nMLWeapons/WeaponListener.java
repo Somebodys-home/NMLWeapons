@@ -28,18 +28,19 @@ public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
     private NMLPlayerStats nmlPlayerStats;
     private WeaponManager weaponManager;
+    private WeaponEffects weaponEffects;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         nmlPlayerStats = NMLWeapons.getNmlPlayerStats();
         weaponManager = new WeaponManager(nmlWeapons);
+        weaponEffects = new WeaponEffects(nmlWeapons);
     }
 
     @EventHandler
     public void onSwingWeapon(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack weapon = player.getInventory().getItemInMainHand();
-        WeaponEffects weaponEffects = new WeaponEffects(nmlWeapons);
 
         if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             if (ItemSystem.isItemUsable(weapon, player)) {
@@ -57,7 +58,7 @@ public class WeaponListener implements Listener {
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (ItemSystem.isItemUsable(weapon, player)) {
-                if (Objects.requireNonNull(ItemSystem.getItemType(weapon)) == ItemType.GLOVE) {
+                if (ItemSystem.getItemType(weapon) == ItemType.GLOVE) {
                     weaponEffects.gloveEffect(weapon, player, 0);
                 }
             }
@@ -68,7 +69,6 @@ public class WeaponListener implements Listener {
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
             ItemStack weapon = player.getInventory().getItemInMainHand();
-            WeaponEffects weaponEffects = new WeaponEffects(nmlWeapons);
 
             if (weapon.hasItemMeta() && ItemSystem.getItemType(weapon) != null) {
                 if (ItemSystem.isItemUsable(weapon, player)) {
@@ -85,60 +85,30 @@ public class WeaponListener implements Listener {
             }
         }
 
-        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player) {
-            if (arrow.hasMetadata("custom arrow")) {
-                ItemStack bow = (ItemStack) arrow.getMetadata("custom arrow").get(0).value();
-
-                event.setDamage(0);
-                arrow.remove();
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
-            }
+        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("custom arrow")) {
+            event.setDamage(0);
+            arrow.remove();
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player,
+                    DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
         }
     }
 
     @EventHandler
     public void bowShots(EntityShootBowEvent event) {
-        ItemStack bow = event.getBow();
-        Float force = event.getForce();
-
         if (!(event.getEntity() instanceof Player player)) return;
         if (!(event.getProjectile() instanceof Arrow arrow)) return;
 
+        ItemStack bow = event.getBow();
+
         if (ItemSystem.isItemUsable(bow, player)) {
-            arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, bow));
-            arrow.setCritical(false);
-
-            if (force <= 2.0f) { // semi-charged shot
-                double boost;
-                if (force <= 0.5) {
-                    boost = 1.0 + (0.5 * (1 - (force / 0.5)));
-                } else {
-                    double scale = (2.0 - force) / 1.5;
-                    boost = 1.0 + (0.25 * scale);
-                }
-                arrow.setVelocity(arrow.getVelocity().multiply(boost));
-            } else if (force >= 2.6f) { // fully charged shot
-                new WeaponEffects(nmlWeapons).bowEffect(arrow, player);
+            if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
+                arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, bow));
+                arrow.setCritical(false);
+                weaponEffects.bowEffect(arrow, player, event.getForce());
+            } else {
+                player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
+                event.setCancelled(true);
             }
-
-            // custom trail particles
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (arrow.isDead() || arrow.isOnGround()) {
-                        this.cancel();
-                        return;
-                    }
-
-                    double speed = arrow.getVelocity().length();
-                    int particleCount = (int) (Math.pow(speed, 2) * 5);
-
-                    if (particleCount > 0) {
-                        Location loc = arrow.getLocation();
-                        player.getWorld().spawnParticle(Particle.CRIT, loc, particleCount,0, 0, 0, 0);
-                    }
-                }
-            }.runTaskTimer(nmlWeapons, 0, 1);
         } else {
             event.setCancelled(true);
         }

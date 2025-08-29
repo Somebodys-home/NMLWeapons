@@ -11,6 +11,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -19,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -28,6 +32,7 @@ public class WeaponEffects {
     private NMLWeapons nmlWeapons;
     private NMLPlayerStats nmlPlayerStats;
     private Set<UUID> hitEntityUUIDs;
+    private BukkitTask arrowDespawnTask;
 
     public WeaponEffects(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
@@ -277,21 +282,62 @@ public class WeaponEffects {
         }
     }
 
-    public void bowEffect(Arrow arrow, Player player) {
-        arrow.setVelocity(player.getLocation().getDirection().normalize().multiply(3));
+    public void bowEffect(Arrow arrow, Player player, Float force) {
+        arrow.setCritical(false);
 
+        // custom trail particles
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (!arrow.isValid() || arrow.isDead() || arrow.isInBlock()) {
-                    player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
+                if (arrow.isDead() || arrow.isOnGround()) {
                     this.cancel();
                     return;
                 }
 
-                player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
+                double speed = arrow.getVelocity().length();
+                int particleCount = (int) (Math.pow(speed, 2) * 5);
+
+                if (particleCount > 0) {
+                    Location loc = arrow.getLocation();
+                    player.getWorld().spawnParticle(Particle.CRIT, loc, particleCount,0, 0, 0, 0);
+                }
             }
-        }.runTaskTimer(nmlWeapons, 2L, 10L);
+        }.runTaskTimer(nmlWeapons, 0, 1);
+
+        if (force <= 2.0f) { // semi-charged shot
+            double boost;
+            if (force <= 0.5) {
+                boost = 1.0 + (0.5 * (1 - (force / 0.5)));
+            } else {
+                double scale = (2.0 - force) / 1.5;
+                boost = 1.0 + (0.25 * scale);
+            }
+            arrow.setVelocity(arrow.getVelocity().multiply(boost));
+        } else if (force >= 2.6f) { // fully charged shot
+            arrow.setVelocity(player.getLocation().getDirection().normalize().multiply(3));
+
+            // sonic boom particles
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!arrow.isValid() || arrow.isDead() || arrow.isInBlock()) {
+                        player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
+                        this.cancel();
+                        return;
+                    }
+
+                    player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
+                }
+            }.runTaskTimer(nmlWeapons, 2L, 10L);
+        }
+
+        // Schedule arrow despawn task
+        arrowDespawnTask = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
+            if (arrow.isDead() || arrow.isInBlock()) {
+                arrow.remove();
+                arrowDespawnTask.cancel();
+            }
+        }, 100L, 40L);
     }
 
     public void magicalEffect(ItemStack weapon, Player player) {
