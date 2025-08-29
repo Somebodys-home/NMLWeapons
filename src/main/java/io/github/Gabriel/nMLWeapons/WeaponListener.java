@@ -287,8 +287,12 @@ public class WeaponListener implements Listener {
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
 
-        weaponManager.addWeaponStatsToPlayer(player, newItem);
-        weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+        if (ItemSystem.isWeapon(newItem)) {
+            weaponManager.addWeaponStatsToPlayer(player, newItem);
+        }
+        if (ItemSystem.isWeapon(oldItem)) {
+            weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+        }
     }
 
     @EventHandler
@@ -302,8 +306,13 @@ public class WeaponListener implements Listener {
                 @Override
                 public void run() {
                     ItemStack newItem = player.getInventory().getItemInMainHand();
-                    weaponManager.addWeaponStatsToPlayer(player, newItem);
-                    weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+
+                    if (ItemSystem.isWeapon(newItem)) {
+                        weaponManager.addWeaponStatsToPlayer(player, newItem);
+                    }
+                    if (ItemSystem.isWeapon(oldItem)) {
+                        weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+                    }
                 }
             }.runTaskLater(nmlWeapons, 1L);
         }
@@ -314,7 +323,9 @@ public class WeaponListener implements Listener {
         Player player = event.getPlayer();
         ItemStack droppedItem = event.getItemDrop().getItemStack();
 
-        weaponManager.removeWeaponStatsFromPlayer(player, droppedItem);
+        if (ItemSystem.isWeapon(droppedItem)) {
+            weaponManager.removeWeaponStatsFromPlayer(player, droppedItem);
+        }
     }
 
     @EventHandler
@@ -344,8 +355,12 @@ public class WeaponListener implements Listener {
                 public void run() {
                     ItemStack newHand = inv.getItemInMainHand();
 
-                    weaponManager.removeWeaponStatsFromPlayer(player, oldHand);
-                    weaponManager.addWeaponStatsToPlayer(player, newHand);
+                    if (ItemSystem.isWeapon(newHand)) {
+                        weaponManager.addWeaponStatsToPlayer(player, newHand);
+                    }
+                    if (ItemSystem.isWeapon(oldHand)) {
+                        weaponManager.removeWeaponStatsFromPlayer(player, oldHand);
+                    }
                 }
             }.runTaskLater(nmlWeapons, 1L);
         }
