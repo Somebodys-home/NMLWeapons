@@ -2,6 +2,7 @@ package io.github.Gabriel.nMLWeapons;
 
 import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
 import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
+import io.github.Gabriel.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
@@ -21,8 +22,10 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import java.util.Objects;
+
+import java.util.HashMap;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
@@ -86,10 +89,12 @@ public class WeaponListener implements Listener {
         }
 
         if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("custom arrow")) {
+            MetadataValue meta = arrow.getMetadata("custom arrow").get(0);
+            HashMap<DamageType, Double> damageMap = (HashMap<DamageType, Double>) meta.value();
+
             event.setDamage(0);
             arrow.remove();
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player,
-                    DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, damageMap));
         }
     }
 
@@ -102,9 +107,11 @@ public class WeaponListener implements Listener {
 
         if (ItemSystem.isItemUsable(bow, player)) {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
-                arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, bow));
+                HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats());
+
+                arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, damageMap));
                 arrow.setCritical(false);
-                weaponEffects.bowEffect(arrow, player, event.getForce());
+                weaponEffects.bowEffect(player, arrow, event.getForce());
             } else {
                 player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
                 event.setCancelled(true);

@@ -7,13 +7,11 @@ import io.github.Gabriel.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
+import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -282,9 +280,7 @@ public class WeaponEffects {
         }
     }
 
-    public void bowEffect(Arrow arrow, Player player, Float force) {
-        arrow.setCritical(false);
-
+    public void bowEffect(Player player, Arrow arrow, Float force) {
         // custom trail particles
         new BukkitRunnable() {
             @Override
