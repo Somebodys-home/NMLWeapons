@@ -86,7 +86,8 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(0.1);
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(0.1);
 
                 livingEntity.setNoDamageTicks(5);
                 livingEntity.setVelocity(knockback);
