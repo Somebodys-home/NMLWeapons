@@ -74,17 +74,15 @@ public class WeaponListener implements Listener {
         if (event.getDamager() instanceof Player player) {
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
-            if (weapon.hasItemMeta() && ItemSystem.getItemType(weapon) != null) {
-                if (ItemSystem.isItemUsable(weapon, player)) {
-                    switch (ItemSystem.getItemType(weapon)) {
-                        case SWORD -> weaponEffects.swordEffect(weapon, player);
-                        case DAGGER -> weaponEffects.daggerEffect(weapon, player);
-                        case AXE -> weaponEffects.axeEffect(weapon, player);
-                        case HAMMER -> weaponEffects.hammerEffect(weapon, player);
-                        case SPEAR -> weaponEffects.spearEffect(weapon, player);
-                        case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
-                        case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
-                    }
+            if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player) && AbilityItemTemplate.isImmovable(weapon)) {
+                switch (ItemSystem.getItemType(weapon)) {
+                    case SWORD -> weaponEffects.swordEffect(weapon, player);
+                    case DAGGER -> weaponEffects.daggerEffect(weapon, player);
+                    case AXE -> weaponEffects.axeEffect(weapon, player);
+                    case HAMMER -> weaponEffects.hammerEffect(weapon, player);
+                    case SPEAR -> weaponEffects.spearEffect(weapon, player);
+                    case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
+                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
                 }
             }
         }
