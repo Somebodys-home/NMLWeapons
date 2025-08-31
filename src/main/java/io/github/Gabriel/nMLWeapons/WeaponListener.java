@@ -72,9 +72,13 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
+            if (player.hasMetadata("usingAbility")) { // metadata block in expertisestyleplugin
+                return;
+            }
+
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
-            if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player) && AbilityItemTemplate.isImmovable(weapon)) {
+            if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
                 switch (ItemSystem.getItemType(weapon)) {
                     case SWORD -> weaponEffects.swordEffect(weapon, player);
                     case DAGGER -> weaponEffects.daggerEffect(weapon, player);

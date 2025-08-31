@@ -7,6 +7,7 @@ depend:
   - NMLPlayerStats
   - DamagePlugin
   - NMLItems
+  - ExpertiseStylePlugin
 commands:
   generateWeapon:
     description: generates a weapon for the player
