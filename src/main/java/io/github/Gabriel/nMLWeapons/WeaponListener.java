@@ -3,6 +3,7 @@ package io.github.Gabriel.nMLWeapons;
 import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
 import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
 import io.github.Gabriel.damagePlugin.customDamage.DamageType;
+import io.github.Gabriel.expertiseStylePlugin.AbilitySystem.AbilityItemTemplate;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
@@ -294,11 +295,13 @@ public class WeaponListener implements Listener {
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
 
-        if (ItemSystem.isWeapon(newItem)) {
-            weaponManager.addWeaponStatsToPlayer(player, newItem);
-        }
-        if (ItemSystem.isWeapon(oldItem)) {
-            weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+        if (!AbilityItemTemplate.isImmovable(newItem)) {
+            if (ItemSystem.isWeapon(newItem)) {
+                weaponManager.addWeaponStatsToPlayer(player, newItem);
+            }
+            if (ItemSystem.isWeapon(oldItem)) {
+                weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+            }
         }
     }
 
