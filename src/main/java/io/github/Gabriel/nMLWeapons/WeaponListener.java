@@ -72,7 +72,7 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
-            if (player.hasMetadata("usingAbility")) { // metadata block in expertisestyleplugin
+            if (player.hasMetadata("using ability")) { // metadata block in expertisestyleplugin
                 return;
             }
 
@@ -97,7 +97,7 @@ public class WeaponListener implements Listener {
 
             event.setDamage(0);
             arrow.remove();
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, damageMap, "basic"));
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, damageMap));
         }
     }
 
