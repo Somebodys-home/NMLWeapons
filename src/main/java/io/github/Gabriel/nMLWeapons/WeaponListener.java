@@ -308,15 +308,14 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void updateWeaponStatsOnClickSwitch(InventoryClickEvent event) {
+    public void updateWeaponStatsOnInventoryMove(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
 
         if (event.getSlot() == player.getInventory().getHeldItemSlot()) {
-            ItemStack oldItem = player.getInventory().getItemInMainHand();
-
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    ItemStack oldItem = event.getCursor();
                     ItemStack newItem = player.getInventory().getItemInMainHand();
 
                     if (ItemSystem.isWeapon(newItem)) {
