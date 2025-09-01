@@ -72,9 +72,7 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
-            if (player.hasMetadata("using ability")) { // metadata block in expertisestyleplugin
-                return;
-            }
+            if (player.hasMetadata("using ability")) return; // metadata block in expertisestyleplugin
 
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
@@ -182,7 +180,7 @@ public class WeaponListener implements Listener {
         }
     }
 
-    @EventHandler // todo: fix this
+    @EventHandler
     public void dontMoveOffhandGlove(InventoryClickEvent event) {
         ItemStack cursorItem = event.getCurrentItem();
 
