@@ -97,7 +97,7 @@ public class WeaponListener implements Listener {
 
             event.setDamage(0);
             arrow.remove();
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, damageMap));
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, damageMap, "basic"));
         }
     }
 
