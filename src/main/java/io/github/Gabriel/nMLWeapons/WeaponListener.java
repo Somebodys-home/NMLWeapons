@@ -47,6 +47,7 @@ public class WeaponListener implements Listener {
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
         if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+            if (player.hasMetadata("using ability")) return; // metadata block in expertisestyleplugin
             if (ItemSystem.isItemUsable(weapon, player)) {
                 switch (ItemSystem.getItemType(weapon)) {
                     case SWORD -> weaponEffects.swordEffect(weapon, player);
