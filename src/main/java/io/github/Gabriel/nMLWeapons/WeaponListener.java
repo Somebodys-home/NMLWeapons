@@ -136,7 +136,10 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void dontSwapWeaponsToOffhand(InventoryClickEvent event) {
-        if (event.getClick() == ClickType.SWAP_OFFHAND && ItemSystem.isWeapon(event.getCurrentItem())) event.setCancelled(true);
+        if (event.getClick() == ClickType.SWAP_OFFHAND && ItemSystem.isWeapon(event.getCurrentItem())) {
+            event.setCancelled(true);
+            weaponManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
+        }
     }
 
     @EventHandler
@@ -155,18 +158,38 @@ public class WeaponListener implements Listener {
         }
     }
 
-    // todo: remove test line eventually
     @EventHandler
     public void updateWeaponStatsOnInventoryMove(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
+        ItemStack triggeringItem = event.getCurrentItem() != null ? event.getCurrentItem().clone() : null;
+        int clickedSlot = event.getSlot();
+        int heldItemSlot = player.getInventory().getHeldItemSlot();
 
-        // shift weapons manually
-        if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT && ItemSystem.isWeapon(event.getCurrentItem())) {
-            weaponManager.removeWeaponStatsFromPlayer(player, event.getCurrentItem());
+        // clicking weapons manually
+        switch (event.getClick()) {
+            case SHIFT_LEFT, SHIFT_RIGHT, NUMBER_KEY -> {
+                if (ItemSystem.isWeapon(triggeringItem)) {
+                    if (clickedSlot == heldItemSlot) {
+                        weaponManager.removeWeaponStatsFromPlayer(player, triggeringItem);
+                        return;
+                    }
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            ItemStack currentlyHeldItem = player.getInventory().getItem(heldItemSlot);
+
+                            if (currentlyHeldItem != null && (triggeringItem.isSimilar(currentlyHeldItem))) {
+                                weaponManager.addWeaponStatsToPlayer(player, currentlyHeldItem);
+                            }
+                        }
+                    }.runTaskLater(nmlWeapons, 1L);
+                }
+            }
         }
 
         // moving weapons manually normally
-        if (event.getSlot() == player.getInventory().getHeldItemSlot()) {
+        if (clickedSlot == heldItemSlot) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
