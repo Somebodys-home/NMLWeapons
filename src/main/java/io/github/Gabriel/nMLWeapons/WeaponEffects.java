@@ -154,7 +154,13 @@ public class WeaponEffects {
         Location explosion = baseLocation.clone().add(forward);
 
         player.getWorld().spawnParticle(Particle.EXPLOSION, explosion, 0, 0, 0, 0, 0);
-        player.getWorld().spawnParticle(Particle.CRIT, explosion.clone().add(0, 0.5, 0), 80, 0.8, 0.8, 0.8, 0);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.getWorld().spawnParticle(Particle.CRIT, explosion.clone().add(0, 0.5, 0), 50, 0.20, 0.20, 0.20);
+            }
+        }.runTaskLater(nmlWeapons, 7L);
 
         for (Entity entity : player.getWorld().getNearbyEntities(explosion, 1.5, 2, 1.5)) {
             if (entity != player) {
