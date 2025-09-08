@@ -126,8 +126,8 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void dontPlaceWeaponsInOffhand(InventoryClickEvent event) {
         if (ItemSystem.isWeapon(event.getCursor()) && event.getSlot() == 40) {
-            if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_ONE ||
-                    event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
+            if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_SOME ||
+                event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
 
                 event.setCancelled(true);
             }
@@ -136,7 +136,7 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void dontSwapWeaponsToOffhand(InventoryClickEvent event) {
-        if (event.getClick() == ClickType.SWAP_OFFHAND && ItemSystem.isWeapon(event.getCurrentItem())) {
+        if ((event.getClick() == ClickType.SWAP_OFFHAND) && ItemSystem.isWeapon(event.getCurrentItem())) {
             event.setCancelled(true);
             weaponManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
         }
@@ -167,7 +167,7 @@ public class WeaponListener implements Listener {
 
         // clicking weapons manually
         switch (event.getClick()) {
-            case SHIFT_LEFT, SHIFT_RIGHT, NUMBER_KEY -> {
+            case SHIFT_LEFT, SHIFT_RIGHT, NUMBER_KEY, CREATIVE -> {
                 if (ItemSystem.isWeapon(triggeringItem)) {
                     if (clickedSlot == heldItemSlot) {
                         weaponManager.removeWeaponStatsFromPlayer(player, triggeringItem);
