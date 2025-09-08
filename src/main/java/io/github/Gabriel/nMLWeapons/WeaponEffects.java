@@ -356,8 +356,6 @@ public class WeaponEffects {
             player.setCooldown(weapon.getType(), 23); // 1.15s cooldown
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, .6f, 1f);
 
-            hitEntityUUIDs.add(livingEntity.getUniqueId());
-
             Location eyeLoc = player.getEyeLocation();
             Vector direction = eyeLoc.getDirection().normalize();
             Random random = new Random();
@@ -382,33 +380,29 @@ public class WeaponEffects {
                 @Override
                 public void run() {
                     if (i > particleInstances) {
-                        for (UUID uuid : hitEntityUUIDs) {
-                            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity2) {
-                                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                                        DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
-                            }
-                        }
+                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
+                                DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
+                        player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
                         cancel();
                         return;
                     }
 
-                    double progress = (double) i / particleInstances; // Progress along the arc (0.0 -> 1)
-
                     // Linear interpolation between start and end
+                    double progress = (double) i / particleInstances; // Progress along the arc (0.0 -> 1)
                     double baseX = start.getX() + (end.getX() - start.getX()) * progress;
                     double baseY = start.getY() + (end.getY() - start.getY()) * progress;
                     double baseZ = start.getZ() + (end.getZ() - start.getZ()) * progress;
 
+                    // Apply side curve and vertical arc to base position
                     double curveOffset = curveDirection * curveAmount * Math.sin(progress * Math.PI); // Horozontial sinusoidal curve offset
                     double heightFactor = minHeight + (maxHeight - minHeight) * Math.sin(progress * Math.PI); // Vertical sinusoidal curve height
-
-                    // Apply side curve and vertical arc to base position
                     double x = baseX + curveAxis.getX() * curveOffset;
                     double y = baseY + heightFactor * verticalCurveDirection;
                     double z = baseZ + curveAxis.getZ() * curveOffset;
 
-                    double floorYLimit = end.getY() + .1; // Clamp the minimum y value based on TARGET'S position
+                    // Clamp the minimum y value based on TARGET'S position
+                    double floorYLimit = end.getY() + .1;
                     y = Math.max(y, floorYLimit);
 
                     Location particleLocation = new Location(player.getWorld(), x, y, z);
