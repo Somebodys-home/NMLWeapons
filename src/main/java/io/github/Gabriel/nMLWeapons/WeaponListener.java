@@ -9,7 +9,6 @@ import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

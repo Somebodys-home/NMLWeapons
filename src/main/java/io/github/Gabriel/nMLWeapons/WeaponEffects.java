@@ -410,7 +410,7 @@ public class WeaponEffects {
 
                     i++;
                 }
-            }.runTaskTimer(nmlWeapons.getInstance(), 0L, 1L);
+            }.runTaskTimer(nmlWeapons, 0L, 1L);
         } else { // miss x
             Location center = player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(1.5));
             center.setY(center.getY() - .125);
@@ -454,7 +454,7 @@ public class WeaponEffects {
 
                     ticks++;
                 }
-            }.runTaskTimer(nmlWeapons.getInstance(), 0L, 1L);
+            }.runTaskTimer(nmlWeapons, 0L, 1L);
 
             player.playSound(player.getLocation(), Sound.BLOCK_BELL_USE, .6f, .5f);
         }
