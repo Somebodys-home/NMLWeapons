@@ -9,6 +9,7 @@ import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,7 +63,7 @@ public class WeaponListener implements Listener {
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (ItemSystem.isItemUsable(weapon, player)) {
+            if (ItemSystem.isItemUsable(weapon, player) && ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.GLOVE) {
                 if (ItemSystem.getItemType(weapon) == ItemType.GLOVE) {
                     weaponEffects.gloveEffect(weapon, player, 0);
                 }
@@ -161,9 +162,10 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void updateWeaponStatsOnInventoryMove(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        ItemStack triggeringItem = event.getCurrentItem() != null ? event.getCurrentItem().clone() : null;
         int clickedSlot = event.getSlot();
         int heldItemSlot = player.getInventory().getHeldItemSlot();
+        ItemStack triggeringItem = event.getCurrentItem();
+        ItemStack previouslyHeldItem = player.getInventory().getItem(heldItemSlot);
 
         // clicking weapons manually
         switch (event.getClick()) {
@@ -171,7 +173,6 @@ public class WeaponListener implements Listener {
                 if (ItemSystem.isWeapon(triggeringItem)) {
                     if (clickedSlot == heldItemSlot) {
                         weaponManager.removeWeaponStatsFromPlayer(player, triggeringItem);
-                        return;
                     }
 
                     new BukkitRunnable() {
@@ -179,8 +180,12 @@ public class WeaponListener implements Listener {
                         public void run() {
                             ItemStack currentlyHeldItem = player.getInventory().getItem(heldItemSlot);
 
-                            if (currentlyHeldItem != null && (triggeringItem.isSimilar(currentlyHeldItem))) {
+                            if (triggeringItem.isSimilar(currentlyHeldItem)) {
                                 weaponManager.addWeaponStatsToPlayer(player, currentlyHeldItem);
+                            }
+
+                            if (!previouslyHeldItem.isSimilar(currentlyHeldItem)) {
+                                weaponManager.removeWeaponStatsFromPlayer(player, previouslyHeldItem);
                             }
                         }
                     }.runTaskLater(nmlWeapons, 1L);
