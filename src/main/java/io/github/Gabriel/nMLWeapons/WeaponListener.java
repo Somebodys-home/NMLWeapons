@@ -6,7 +6,7 @@ import io.github.Gabriel.damagePlugin.customDamage.DamageType;
 import io.github.Gabriel.expertiseStylePlugin.AbilitySystem.AbilityItemTemplate;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
-import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
+import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -30,13 +30,13 @@ import java.util.HashMap;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
-    private NMLPlayerStats nmlPlayerStats;
+    private ProfileManager profileManager;
     private WeaponManager weaponManager;
     private WeaponEffects weaponEffects;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
-        nmlPlayerStats = NMLWeapons.getNmlPlayerStats();
+        profileManager = nmlWeapons.getProfileManager();
         weaponManager = new WeaponManager(nmlWeapons);
         weaponEffects = new WeaponEffects(nmlWeapons);
     }
@@ -109,7 +109,7 @@ public class WeaponListener implements Listener {
 
         if (ItemSystem.isItemUsable(bow, player)) {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
-                HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats());
+                HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 
                 arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, damageMap));
                 arrow.setCritical(false);
@@ -148,7 +148,7 @@ public class WeaponListener implements Listener {
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
 
-        if (!AbilityItemTemplate.isImmovable(newItem)) { // for ability items
+        if (!AbilityItemTemplate.isAnAbility(newItem)) { // for ability items
             if (ItemSystem.isWeapon(newItem)) {
                 weaponManager.addWeaponStatsToPlayer(player, newItem);
             }
@@ -183,7 +183,7 @@ public class WeaponListener implements Listener {
                                 weaponManager.addWeaponStatsToPlayer(player, currentlyHeldItem);
                             }
 
-                            if (!previouslyHeldItem.isSimilar(currentlyHeldItem)) {
+                            if (previouslyHeldItem != null && !previouslyHeldItem.isSimilar(currentlyHeldItem)) {
                                 weaponManager.removeWeaponStatsFromPlayer(player, previouslyHeldItem);
                             }
                         }

@@ -1,13 +1,11 @@
 package io.github.Gabriel.nMLWeapons;
 
 import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
-import io.github.Gabriel.damagePlugin.customDamage.CustomDamager;
 import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
 import io.github.Gabriel.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
-import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
-import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
+import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -18,7 +16,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
@@ -28,13 +25,13 @@ import java.util.*;
 
 public class WeaponEffects {
     private NMLWeapons nmlWeapons;
-    private NMLPlayerStats nmlPlayerStats;
+    private ProfileManager profileManager;
     private Set<UUID> hitEntityUUIDs;
     private BukkitTask arrowDespawnTask;
 
     public WeaponEffects(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
-        this.nmlPlayerStats = NMLWeapons.getNmlPlayerStats();
+        this.profileManager = NMLWeapons.getProfileManager();
         hitEntityUUIDs = new HashSet<>();
     }
 
@@ -57,7 +54,7 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
 
@@ -85,7 +82,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
 
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(0.1);
                 livingEntity.setNoDamageTicks(5);
@@ -136,7 +133,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
 
@@ -171,7 +168,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
 
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
@@ -206,7 +203,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
 
@@ -222,7 +219,7 @@ public class WeaponEffects {
 
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
-        HashMap<DamageType, Double> halfDamage = DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats());
+        HashMap<DamageType, Double> halfDamage = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
             halfDamage.replaceAll((k, v) -> v / 2); // actually halves the damage
 
         particleLocation.add(direction);
@@ -381,7 +378,7 @@ public class WeaponEffects {
                 public void run() {
                     if (i > particleInstances) {
                         Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                                DamageConverter.convertPlayerStats2Damage(nmlPlayerStats.getProfileManager().getPlayerProfile(player.getUniqueId()).getStats())));
+                                DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
                         player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
                         cancel();
