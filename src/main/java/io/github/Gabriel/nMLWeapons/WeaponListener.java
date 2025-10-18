@@ -261,7 +261,7 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void dontThrowSpears(PlayerInteractEvent event) {
-        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK && ItemSystem.getItemType(event.getItem()) == ItemType.SPEAR) {
+        if (ItemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
             event.setCancelled(true);
         }
     }
