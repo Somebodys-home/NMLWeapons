@@ -37,7 +37,7 @@ public class WeaponListener implements Listener {
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
-        weaponManager = new WeaponManager(nmlWeapons);
+        weaponManager = new WeaponManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
     }
 

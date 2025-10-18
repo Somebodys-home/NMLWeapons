@@ -108,25 +108,31 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
-            <version>18f36650ac</version>
+            <version>59c800b37f</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>DamagePlugin</artifactId>
-            <version>0e212890b8</version>
+            <version>5783fe7a48</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLItems</artifactId>
-            <version>8b862a19f5</version>
+            <version>6a2109bd0c</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>ExpertiseStylePlugin</artifactId>
-            <version>97cc04b513</version>
+            <version>b8322497bd</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Somebodys-home</groupId>
+            <artifactId>NMLSkills</artifactId>
+            <version>6d62d8b91e</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

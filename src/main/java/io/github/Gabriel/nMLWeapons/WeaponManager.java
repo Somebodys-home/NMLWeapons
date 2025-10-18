@@ -12,12 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WeaponManager {
-    private ProfileManager profileManager;
-
-    public WeaponManager(NMLWeapons nmlWeapons) {
-        profileManager = nmlWeapons.getProfileManager();
-    }
-
     private HashMap<String, Double> weaponStatsToPlayerStats(ItemStack weapon) {
         HashMap<String, Double> playerStats = new HashMap<>();
 

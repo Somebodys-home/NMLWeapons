@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     private WeaponManager weaponManager;
 
-    public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
-        weaponManager = new WeaponManager(nmlWeapons);
+    public GenerateWeaponCommand() {
+        weaponManager = new WeaponManager();
     }
 
     @Override
