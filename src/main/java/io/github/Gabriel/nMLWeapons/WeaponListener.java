@@ -277,7 +277,8 @@ public class WeaponListener implements Listener {
                 player.getInventory().setItemInOffHand(mainHand); // put glove in offhand
             }
         } else { // if main hand item ISN'T a glove
-            if (offhand.getItemMeta() != null && ItemSystem.getItemType(offhand) == ItemType.GLOVE) { // and if offhand item is a glove
+            if (ItemSystem.getItemType(offhand) == ItemType.GLOVE && !AbilityItemTemplate.isAnAbility(mainHand)) { // and if offhand item is a glove and youre not swapping
+                                                                                                                   // to an ability item
                 player.getInventory().setItemInOffHand(new ItemStack(Material.AIR)); // remove it
             }
         }

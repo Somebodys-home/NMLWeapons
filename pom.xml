@@ -126,7 +126,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>ExpertiseStylePlugin</artifactId>
-            <version>b8322497bd</version>
+            <version>a6c0407a35</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
