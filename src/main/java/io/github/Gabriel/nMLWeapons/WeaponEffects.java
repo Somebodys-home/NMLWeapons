@@ -31,7 +31,7 @@ public class WeaponEffects {
 
     public WeaponEffects(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
-        this.profileManager = NMLWeapons.getProfileManager();
+        this.profileManager = nmlWeapons.getProfileManager();
         hitEntityUUIDs = new HashSet<>();
     }
 

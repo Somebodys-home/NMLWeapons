@@ -2,28 +2,26 @@ package io.github.Gabriel.nMLWeapons;
 
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
-import io.github.NoOne.nMLSkills.NMLSkills;
-import io.github.NoOne.nMLSkills.skillSetSystem.SkillSetManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NMLWeapons extends JavaPlugin {
-    private static ProfileManager profileManager;
-    private static SkillSetManager skillSetManager;
+    private WeaponStatsManager weaponStatsManager;
+    private ProfileManager profileManager;
 
     @Override
     public void onEnable() {
+        weaponStatsManager = new WeaponStatsManager(JavaPlugin.getPlugin(NMLPlayerStats.class));
         profileManager = JavaPlugin.getPlugin(NMLPlayerStats.class).getProfileManager();
-        skillSetManager = JavaPlugin.getPlugin(NMLSkills.class).getSkillSetManager();
 
         getServer().getPluginManager().registerEvents(new WeaponListener(this), this);
-        getCommand("generateWeapon").setExecutor(new GenerateWeaponCommand());
+        getCommand("generateWeapon").setExecutor(new GenerateWeaponCommand(this));
     }
 
-    public static ProfileManager getProfileManager() {
+    public WeaponStatsManager getWeaponManager() {
+        return weaponStatsManager;
+    }
+
+    public ProfileManager getProfileManager() {
         return profileManager;
-    }
-
-    public static SkillSetManager getSkillSetManager() {
-        return skillSetManager;
     }
 }

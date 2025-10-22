@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
-            <version>59c800b37f</version>
+            <version>8c9a9b8aa1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -120,19 +120,13 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLItems</artifactId>
-            <version>6a2109bd0c</version>
+            <version>86fb3e1560</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>ExpertiseStylePlugin</artifactId>
             <version>a6c0407a35</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.Somebodys-home</groupId>
-            <artifactId>NMLSkills</artifactId>
-            <version>6d62d8b91e</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

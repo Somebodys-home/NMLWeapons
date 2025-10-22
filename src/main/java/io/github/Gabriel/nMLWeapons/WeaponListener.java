@@ -31,13 +31,13 @@ import java.util.HashMap;
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
     private ProfileManager profileManager;
-    private WeaponManager weaponManager;
+    private WeaponStatsManager weaponStatsManager;
     private WeaponEffects weaponEffects;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
-        weaponManager = new WeaponManager();
+        weaponStatsManager = nmlWeapons.getWeaponManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
     }
 
@@ -138,7 +138,7 @@ public class WeaponListener implements Listener {
     public void dontSwapWeaponsToOffhand(InventoryClickEvent event) {
         if ((event.getClick() == ClickType.SWAP_OFFHAND) && ItemSystem.isWeapon(event.getCurrentItem())) {
             event.setCancelled(true);
-            weaponManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
+            weaponStatsManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
         }
     }
 
@@ -150,10 +150,10 @@ public class WeaponListener implements Listener {
 
         if (!AbilityItemTemplate.isAnAbility(newItem)) { // for ability items
             if (ItemSystem.isWeapon(newItem)) {
-                weaponManager.addWeaponStatsToPlayer(player, newItem);
+                weaponStatsManager.addWeaponStatsToPlayer(player, newItem);
             }
             if (ItemSystem.isWeapon(oldItem)) {
-                weaponManager.removeWeaponStatsFromPlayer(player, oldItem);
+                weaponStatsManager.removeWeaponStatsFromPlayer(player, oldItem);
             }
         }
     }
@@ -171,7 +171,7 @@ public class WeaponListener implements Listener {
             case SHIFT_LEFT, SHIFT_RIGHT, NUMBER_KEY, CREATIVE -> {
                 if (ItemSystem.isWeapon(triggeringItem)) {
                     if (clickedSlot == heldItemSlot) {
-                        weaponManager.removeWeaponStatsFromPlayer(player, triggeringItem);
+                        weaponStatsManager.removeWeaponStatsFromPlayer(player, triggeringItem);
                     }
 
                     new BukkitRunnable() {
@@ -180,11 +180,11 @@ public class WeaponListener implements Listener {
                             ItemStack currentlyHeldItem = player.getInventory().getItem(heldItemSlot);
 
                             if (triggeringItem.isSimilar(currentlyHeldItem)) {
-                                weaponManager.addWeaponStatsToPlayer(player, currentlyHeldItem);
+                                weaponStatsManager.addWeaponStatsToPlayer(player, currentlyHeldItem);
                             }
 
                             if (previouslyHeldItem != null && !previouslyHeldItem.isSimilar(currentlyHeldItem)) {
-                                weaponManager.removeWeaponStatsFromPlayer(player, previouslyHeldItem);
+                                weaponStatsManager.removeWeaponStatsFromPlayer(player, previouslyHeldItem);
                             }
                         }
                     }.runTaskLater(nmlWeapons, 1L);
@@ -201,10 +201,10 @@ public class WeaponListener implements Listener {
                     ItemStack newMainHandItem = player.getInventory().getItemInMainHand();
 
                     if (ItemSystem.isWeapon(newMainHandItem)) {
-                        weaponManager.addWeaponStatsToPlayer(player, newMainHandItem);
+                        weaponStatsManager.addWeaponStatsToPlayer(player, newMainHandItem);
                     }
                     if (ItemSystem.isWeapon(cursorItem)) {
-                        weaponManager.removeWeaponStatsFromPlayer(player, cursorItem);
+                        weaponStatsManager.removeWeaponStatsFromPlayer(player, cursorItem);
                     }
                 }
             }.runTaskLater(nmlWeapons, 1L);
@@ -217,7 +217,7 @@ public class WeaponListener implements Listener {
         ItemStack droppedItem = event.getItemDrop().getItemStack();
 
         if (ItemSystem.isWeapon(droppedItem)) {
-            weaponManager.removeWeaponStatsFromPlayer(player, droppedItem);
+            weaponStatsManager.removeWeaponStatsFromPlayer(player, droppedItem);
         }
     }
 
@@ -249,10 +249,10 @@ public class WeaponListener implements Listener {
                     ItemStack newHand = playerInventory.getItemInMainHand();
 
                     if (ItemSystem.isWeapon(newHand)) {
-                        weaponManager.addWeaponStatsToPlayer(player, newHand);
+                        weaponStatsManager.addWeaponStatsToPlayer(player, newHand);
                     }
                     if (ItemSystem.isWeapon(oldHand)) {
-                        weaponManager.removeWeaponStatsFromPlayer(player, oldHand);
+                        weaponStatsManager.removeWeaponStatsFromPlayer(player, oldHand);
                     }
                 }
             }.runTaskLater(nmlWeapons, 1L);

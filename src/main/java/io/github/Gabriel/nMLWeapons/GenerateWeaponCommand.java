@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
-    private WeaponManager weaponManager;
+    private WeaponStatsManager weaponStatsManager;
 
-    public GenerateWeaponCommand() {
-        weaponManager = new WeaponManager();
+    public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
+        weaponStatsManager = nmlWeapons.getWeaponManager();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
 
             ItemStack mainHand = player.getInventory().getItemInMainHand();
             if (mainHand.isSimilar(weapon)) {
-                weaponManager.addWeaponStatsToPlayer(player, mainHand);
+                weaponStatsManager.addWeaponStatsToPlayer(player, mainHand);
             }
         }
         return true;
