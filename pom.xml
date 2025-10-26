@@ -25,11 +25,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -43,29 +42,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.5.3</version>
                 <executions>
                     <execution>
+                        <id>shade-if-needed</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/**</exclude>
-                                        <!-- EXCLUDE any plugin classes from being shaded -->
-                                        <exclude>io/github/NoOne/nMLPlayerStats/**</exclude>
-                                        <exclude>io/github/Gabriel/damagePlugin/**</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                             <relocations>
                                 <relocation>
-                                    <pattern>io.github.Gabriel.menuSystem</pattern>
+                                    <pattern>com.somebodyshome.menusystem</pattern>
                                     <shadedPattern>${shade.prefix}.menuSystem</shadedPattern>
                                 </relocation>
                             </relocations>
@@ -73,8 +63,13 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <repositories>
