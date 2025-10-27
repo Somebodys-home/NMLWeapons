@@ -74,6 +74,7 @@ public class WeaponListener implements Listener {
     public void onWeaponHit(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
             if (player.hasMetadata("using ability")) return; // metadata block in expertisestyleplugin
+            if (CustomDamageEvent.isInsideCustomDamage()) return;
 
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
