@@ -26,13 +26,11 @@ import java.util.*;
 public class WeaponEffects {
     private NMLWeapons nmlWeapons;
     private ProfileManager profileManager;
-    private Set<UUID> hitEntityUUIDs;
     private BukkitTask arrowDespawnTask;
 
     public WeaponEffects(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         this.profileManager = nmlWeapons.getProfileManager();
-        hitEntityUUIDs = new HashSet<>();
     }
 
     public void swordEffect(ItemStack weapon, Player player) {
@@ -40,6 +38,7 @@ public class WeaponEffects {
 
         player.setCooldown(weapon.getType(), 20); // 1s cooldown
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(3); // distance in blocks of particle from player
 
@@ -67,6 +66,7 @@ public class WeaponEffects {
 
         player.setCooldown(weapon.getType(), 5); // .25s cooldown
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
 
@@ -84,7 +84,7 @@ public class WeaponEffects {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
                         DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
 
-                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(0.1);
+                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
                 livingEntity.setNoDamageTicks(5);
                 livingEntity.setVelocity(knockback);
             }
@@ -99,6 +99,7 @@ public class WeaponEffects {
 
         player.setCooldown(weapon.getType(), 40); // 2s cooldown
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location baseLocation = player.getLocation().add(0, 1, 0);
         Vector forward = baseLocation.getDirection().normalize().multiply(3);
         Vector leftOffset = forward.clone().rotateAroundY(Math.toRadians(-25));
@@ -146,6 +147,7 @@ public class WeaponEffects {
 
         player.setCooldown(weapon.getType(), 60); // 3s cooldown
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location baseLocation = player.getLocation().add(0, 1, 0);
         Vector forward = baseLocation.getDirection().normalize().multiply(3);
         Location explosion = baseLocation.clone().add(forward);
@@ -155,7 +157,7 @@ public class WeaponEffects {
         new BukkitRunnable() {
             @Override
             public void run() {
-                player.getWorld().spawnParticle(Particle.CRIT, explosion.clone().add(0, 0.5, 0), 50, 0.20, 0.20, 0.20);
+                player.getWorld().spawnParticle(Particle.CRIT, explosion.clone().add(0, .5, 0), 50, .20, .20, .20);
             }
         }.runTaskLater(nmlWeapons, 7L);
 
@@ -186,14 +188,17 @@ public class WeaponEffects {
 
         player.setCooldown(weapon.getType(), 40); // 2s cooldown
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location start = player.getLocation().add(0, 1, 0);
-        Vector direction = start.getDirection().normalize().multiply(0.5);
+        Vector direction = start.getDirection().normalize().multiply(.5);
 
         for (int i = 1; i <= 12; i++) {
             Location point = start.clone().add(direction.clone().multiply(i));
-            player.getWorld().spawnParticle(Particle.CRIT, point, 5, 0.01, 0.01, 0.01, 0);
 
-            for (Entity entity : player.getWorld().getNearbyEntities(point, .5, .5, .5)) {
+            point.setY(point.getY() + (i * .05));
+            player.getWorld().spawnParticle(Particle.CRIT, point, 5, .01, .01, .01, 0);
+
+            for (Entity entity : player.getWorld().getNearbyEntities(point, .55, .55, .55)) {
                 if (entity != player) {
                     hitEntityUUIDs.add(entity.getUniqueId());
                 }
@@ -217,6 +222,7 @@ public class WeaponEffects {
 
         player.setCooldown(weapon.getType(), 20); // 1s cooldown
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
         HashMap<DamageType, Double> halfDamage = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
@@ -305,11 +311,11 @@ public class WeaponEffects {
 
         if (force <= 2.0f) { // semi-charged shot
             double boost;
-            if (force <= 0.5) {
-                boost = 1.0 + (0.5 * (1 - (force / 0.5)));
+            if (force <= .5) {
+                boost = 1.0 + (.5 * (1 - (force / .5)));
             } else {
                 double scale = (2.0 - force) / 1.5;
-                boost = 1.0 + (0.25 * scale);
+                boost = 1.0 + (.25 * scale);
             }
             arrow.setVelocity(arrow.getVelocity().multiply(boost));
         } else if (force >= 2.6f) { // fully charged shot
@@ -342,6 +348,7 @@ public class WeaponEffects {
     public void magicalEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
+        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         RayTraceResult target = player.getWorld().rayTraceEntities(
                 player.getEyeLocation(),
                 player.getLocation().getDirection(),
@@ -361,13 +368,13 @@ public class WeaponEffects {
             Vector curveAxis = direction.clone().crossProduct(randomVec).normalize();
             Vector right = direction.clone().crossProduct(new Vector(0, 1, 0)).normalize();
 
-            Location start = player.getLocation().add(0, 1.2, 0).add(right.multiply(0.4));
-            Location end = livingEntity.getLocation().add(0, 0.5, 0);
+            Location start = player.getLocation().add(0, 1.2, 0).add(right.multiply(.4));
+            Location end = livingEntity.getLocation().add(0, .5, 0);
 
             double curveDirection = random.nextBoolean() ? 1 : -1; // Is the arc gonna curve left or right
             double verticalCurveDirection = random.nextBoolean() ? 1 : -1; // Is the arc gonna curve up or down
             double curveAmount = 1.5 + random.nextDouble() * 3.0; // How far the arc bends left/right (scaled randomly for variety)
-            double minHeight = 0.2 + random.nextDouble(); // Minimum arc height
+            double minHeight = .2 + random.nextDouble(); // Minimum arc height
             double maxHeight = 1.0 + random.nextDouble() * 1.5; // Maximum arc height
             int particleInstances = 10;
 
@@ -386,7 +393,7 @@ public class WeaponEffects {
                     }
 
                     // Linear interpolation between start and end
-                    double progress = (double) i / particleInstances; // Progress along the arc (0.0 -> 1)
+                    double progress = (double) i / particleInstances; // Progress along the arc (.0 -> 1)
                     double baseX = start.getX() + (end.getX() - start.getX()) * progress;
                     double baseY = start.getY() + (end.getY() - start.getY()) * progress;
                     double baseZ = start.getZ() + (end.getZ() - start.getZ()) * progress;
@@ -403,7 +410,7 @@ public class WeaponEffects {
                     y = Math.max(y, floorYLimit);
 
                     Location particleLocation = new Location(player.getWorld(), x, y, z);
-                    player.getWorld().spawnParticle(Particle.GLOW, particleLocation, 50, 0.1, 0.075, 0.1, 0);
+                    player.getWorld().spawnParticle(Particle.GLOW, particleLocation, 50, .1, .075, .1, 0);
 
                     i++;
                 }
@@ -413,7 +420,7 @@ public class WeaponEffects {
             center.setY(center.getY() - .125);
 
             int pointsPerLine = 5;
-            double size = 0.33;
+            double size = .33;
 
             new BukkitRunnable() {
                 int ticks = 0;
@@ -428,7 +435,7 @@ public class WeaponEffects {
                     Vector forward = player.getEyeLocation().getDirection().normalize();
                     Vector up = new Vector(0, 1, 0);
 
-                    if (Math.abs(forward.dot(up)) > 0.98) {
+                    if (Math.abs(forward.dot(up)) > .98) {
                         up = new Vector(1, 0, 0);
                     }
 
@@ -437,7 +444,7 @@ public class WeaponEffects {
 
                     for (int i = 0; i <= pointsPerLine; i++) {
                         double t = i / (double) pointsPerLine;
-                        double offset = size * (t - 0.5);
+                        double offset = size * (t - .5);
 
                         Vector offset1 = right.clone().multiply(offset).add(screenUp.clone().multiply(offset));
                         Vector offset2 = right.clone().multiply(offset).add(screenUp.clone().multiply(-offset));
