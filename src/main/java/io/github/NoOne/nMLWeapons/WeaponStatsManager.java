@@ -1,4 +1,4 @@
-package io.github.Gabriel.nMLWeapons;
+package io.github.NoOne.nMLWeapons;
 
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;

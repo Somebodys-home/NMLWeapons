@@ -1,4 +1,4 @@
-package io.github.Gabriel.nMLWeapons;
+package io.github.NoOne.nMLWeapons;
 
 import io.github.NoOne.nMLItems.ItemRarity;
 import io.github.NoOne.nMLItems.ItemType;

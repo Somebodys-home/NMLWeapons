@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>DamagePlugin</artifactId>
-            <version>5c1ba32149</version>
+            <version>c2c013a5cb</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>ExpertiseStylePlugin</artifactId>
-            <version>a6c0407a35</version>
+            <version>5e807b88fb</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

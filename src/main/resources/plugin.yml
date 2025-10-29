@@ -1,8 +1,7 @@
 name: NMLWeapons
-version: '1'
-main: io.github.Gabriel.nMLWeapons.NMLWeapons
-api-version: '1.21.8'
-authors: [ Gabriel Nicolas ]
+version: '1.0'
+main: io.github.NoOne.nMLWeapons.NMLWeapons
+api-version: '1.21'
 depend:
   - NMLPlayerStats
   - DamagePlugin

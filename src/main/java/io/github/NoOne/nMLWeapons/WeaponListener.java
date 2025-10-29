@@ -1,9 +1,9 @@
-package io.github.Gabriel.nMLWeapons;
+package io.github.NoOne.nMLWeapons;
 
-import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
-import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
-import io.github.Gabriel.damagePlugin.customDamage.DamageType;
-import io.github.Gabriel.expertiseStylePlugin.AbilitySystem.AbilityItemTemplate;
+import io.github.NoOne.damagePlugin.customDamage.CustomDamageEvent;
+import io.github.NoOne.damagePlugin.customDamage.DamageConverter;
+import io.github.NoOne.damagePlugin.customDamage.DamageType;
+import io.github.NoOne.expertiseStylePlugin.abilitySystem.AbilityItemTemplate;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
@@ -62,6 +62,10 @@ public class WeaponListener implements Listener {
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (player.hasMetadata("using ability")) { // metadata block in expertisestyleplugin
+                event.setCancelled(true);
+                return;
+            }
             if (ItemSystem.isItemUsable(weapon, player) && ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.GLOVE) {
                 if (ItemSystem.getItemType(weapon) == ItemType.GLOVE) {
                     weaponEffects.gloveEffect(weapon, player, 0);
@@ -104,10 +108,7 @@ public class WeaponListener implements Listener {
     public void bowShots(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!(event.getProjectile() instanceof Arrow arrow)) return;
-
-        ItemStack bow = event.getBow();
-
-        if (ItemSystem.isItemUsable(bow, player)) {
+        if (ItemSystem.isItemUsable(event.getBow(), player)) {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
                 HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 

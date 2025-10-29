@@ -1,8 +1,8 @@
-package io.github.Gabriel.nMLWeapons;
+package io.github.NoOne.nMLWeapons;
 
-import io.github.Gabriel.damagePlugin.customDamage.CustomDamageEvent;
-import io.github.Gabriel.damagePlugin.customDamage.DamageConverter;
-import io.github.Gabriel.damagePlugin.customDamage.DamageType;
+import io.github.NoOne.damagePlugin.customDamage.CustomDamageEvent;
+import io.github.NoOne.damagePlugin.customDamage.DamageConverter;
+import io.github.NoOne.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
