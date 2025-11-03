@@ -3,7 +3,7 @@ package io.github.NoOne.nMLWeapons;
 import io.github.NoOne.damagePlugin.customDamage.CustomDamageEvent;
 import io.github.NoOne.damagePlugin.customDamage.DamageConverter;
 import io.github.NoOne.damagePlugin.customDamage.DamageType;
-import io.github.NoOne.expertiseStylePlugin.abilitySystem.AbilityItemTemplate;
+import io.github.NoOne.expertiseStylePlugin.abilitySystem.AbilityItemManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
@@ -149,7 +149,7 @@ public class WeaponListener implements Listener {
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
 
-        if (!AbilityItemTemplate.isAnAbility(newItem)) { // for ability items
+        if (!AbilityItemManager.isAnAbility(newItem)) { // for ability items
             if (ItemSystem.isWeapon(newItem)) {
                 weaponStatsManager.addWeaponStatsToPlayer(player, newItem);
             }
@@ -278,7 +278,7 @@ public class WeaponListener implements Listener {
                 player.getInventory().setItemInOffHand(mainHand); // put glove in offhand
             }
         } else { // if main hand item ISN'T a glove
-            if (ItemSystem.getItemType(offhand) == ItemType.GLOVE && !AbilityItemTemplate.isAnAbility(mainHand)) { // and if offhand item is a glove and youre not swapping
+            if (ItemSystem.getItemType(offhand) == ItemType.GLOVE && !AbilityItemManager.isAnAbility(mainHand)) { // and if offhand item is a glove and youre not swapping
                                                                                                                    // to an ability item
                 player.getInventory().setItemInOffHand(new ItemStack(Material.AIR)); // remove it
             }
