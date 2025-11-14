@@ -33,12 +33,14 @@ public class WeaponListener implements Listener {
     private ProfileManager profileManager;
     private WeaponStatsManager weaponStatsManager;
     private WeaponEffects weaponEffects;
+    private WeaponStatsUpdater WeaponStatsUpdater;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
         weaponStatsManager = nmlWeapons.getWeaponManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
+        WeaponStatsUpdater = nmlWeapons.getWeaponthing();
     }
 
     @EventHandler
@@ -144,22 +146,6 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void updateWeaponStatsOnHold(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
-        ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
-
-        if (!AbilityItemManager.isAnAbility(newItem)) { // for ability items
-            if (ItemSystem.isWeapon(newItem)) {
-                weaponStatsManager.addWeaponStatsToPlayer(player, newItem);
-            }
-            if (ItemSystem.isWeapon(oldItem)) {
-                weaponStatsManager.removeWeaponStatsFromPlayer(player, oldItem);
-            }
-        }
-    }
-
-    @EventHandler
     public void updateWeaponStatsOnInventoryMove(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         int clickedSlot = event.getSlot();
@@ -223,41 +209,8 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void updateWeaponStatsOnPickup(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-
-        ItemStack pickedUpItem = event.getItem().getItemStack();
-        PlayerInventory playerInventory = player.getInventory();
-        ItemStack oldHand = playerInventory.getItemInMainHand();
-
-        // where did that item go?
-        int slot = -1;
-        for (int i = 0; i < playerInventory.getSize(); i++) {
-            ItemStack stack = playerInventory.getItem(i);
-            if (stack != null && stack.isSimilar(pickedUpItem) && stack.getAmount() < stack.getMaxStackSize()) {
-                slot = i;
-            }
-        }
-
-        if (slot == -1) {
-            slot = playerInventory.firstEmpty();
-        }
-
-        if (slot == playerInventory.getHeldItemSlot()) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ItemStack newHand = playerInventory.getItemInMainHand();
-
-                    if (ItemSystem.isWeapon(newHand)) {
-                        weaponStatsManager.addWeaponStatsToPlayer(player, newHand);
-                    }
-                    if (ItemSystem.isWeapon(oldHand)) {
-                        weaponStatsManager.removeWeaponStatsFromPlayer(player, oldHand);
-                    }
-                }
-            }.runTaskLater(nmlWeapons, 1L);
-        }
+    public void dontMoveWeaponsToOffhand(PlayerSwapHandItemsEvent event) {
+        if (ItemSystem.isWeapon(event.getOffHandItem())) event.setCancelled(true);
     }
 
     @EventHandler
