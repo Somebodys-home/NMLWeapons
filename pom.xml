@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
-            <version>8c9a9b8aa1</version>
+            <version>566f9983eb</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

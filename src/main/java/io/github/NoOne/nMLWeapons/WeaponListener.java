@@ -112,7 +112,7 @@ public class WeaponListener implements Listener {
         if (!(event.getProjectile() instanceof Arrow arrow)) return;
         if (ItemSystem.isItemUsable(event.getBow(), player)) {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
-                HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
+                HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()));
 
                 arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, damageMap));
                 arrow.setCritical(false);
