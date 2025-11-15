@@ -33,14 +33,12 @@ public class WeaponListener implements Listener {
     private ProfileManager profileManager;
     private WeaponStatsManager weaponStatsManager;
     private WeaponEffects weaponEffects;
-    private WeaponStatsUpdater WeaponStatsUpdater;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
         weaponStatsManager = nmlWeapons.getWeaponManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
-        WeaponStatsUpdater = nmlWeapons.getWeaponthing();
     }
 
     @EventHandler
@@ -127,21 +125,18 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void dontPlaceWeaponsInOffhand(InventoryClickEvent event) {
-        if (ItemSystem.isWeapon(event.getCursor()) && event.getSlot() == 40) {
-            if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_SOME ||
-                event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
+    public void updateWeaponStatsOnHold(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
+        ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
 
-                event.setCancelled(true);
+        if (!AbilityItemManager.isAnAbility(newItem)) {
+            if (ItemSystem.isWeapon(newItem)) {
+                weaponStatsManager.addWeaponStatsToPlayer(player, newItem);
             }
-        }
-    }
-
-    @EventHandler
-    public void dontSwapWeaponsToOffhand(InventoryClickEvent event) {
-        if ((event.getClick() == ClickType.SWAP_OFFHAND) && ItemSystem.isWeapon(event.getCurrentItem())) {
-            event.setCancelled(true);
-            weaponStatsManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
+            if (ItemSystem.isWeapon(oldItem)) {
+                weaponStatsManager.removeWeaponStatsFromPlayer(player, oldItem);
+            }
         }
     }
 
@@ -205,6 +200,63 @@ public class WeaponListener implements Listener {
 
         if (ItemSystem.isWeapon(droppedItem)) {
             weaponStatsManager.removeWeaponStatsFromPlayer(player, droppedItem);
+        }
+    }
+
+    @EventHandler
+    public void updateWeaponStatsOnPickup(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        ItemStack pickedUpItem = event.getItem().getItemStack();
+        PlayerInventory playerInventory = player.getInventory();
+        ItemStack oldHand = playerInventory.getItemInMainHand();
+
+        // where did that item go?
+        int slot = -1;
+        for (int i = 0; i < playerInventory.getSize(); i++) {
+            ItemStack stack = playerInventory.getItem(i);
+            if (stack != null && stack.isSimilar(pickedUpItem) && stack.getAmount() < stack.getMaxStackSize()) {
+                slot = i;
+            }
+        }
+
+        if (slot == -1) {
+            slot = playerInventory.firstEmpty();
+        }
+
+        if (slot == playerInventory.getHeldItemSlot()) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    ItemStack newHand = playerInventory.getItemInMainHand();
+
+                    if (ItemSystem.isWeapon(newHand)) {
+                        weaponStatsManager.addWeaponStatsToPlayer(player, newHand);
+                    }
+                    if (ItemSystem.isWeapon(oldHand)) {
+                        weaponStatsManager.removeWeaponStatsFromPlayer(player, oldHand);
+                    }
+                }
+            }.runTaskLater(nmlWeapons, 1L);
+        }
+    }
+
+    @EventHandler
+    public void dontPlaceWeaponsInOffhand(InventoryClickEvent event) {
+        if (ItemSystem.isWeapon(event.getCursor()) && event.getSlot() == 40) {
+            if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_SOME ||
+                event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
+
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void dontSwapWeaponsToOffhand(InventoryClickEvent event) {
+        if ((event.getClick() == ClickType.SWAP_OFFHAND) && ItemSystem.isWeapon(event.getCurrentItem())) {
+            event.setCancelled(true);
+            weaponStatsManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
         }
     }
 
