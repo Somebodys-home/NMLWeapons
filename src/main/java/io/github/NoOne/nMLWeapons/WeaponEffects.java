@@ -53,7 +53,7 @@ public class WeaponEffects {
 
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()))));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
 
@@ -82,7 +82,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()))));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
 
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
                 livingEntity.setNoDamageTicks(5);
@@ -134,7 +134,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()))));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
 
@@ -170,7 +170,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()))));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
 
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
@@ -208,7 +208,7 @@ public class WeaponEffects {
         for (UUID uuid : hitEntityUUIDs) {
             if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()))));
+                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
             }
         }
 
@@ -225,7 +225,7 @@ public class WeaponEffects {
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
-        HashMap<DamageType, Double> halfDamage = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()));
+        HashMap<DamageType, Double> halfDamage = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
             halfDamage.replaceAll((k, v) -> v / 2); // actually halves the damage
 
         particleLocation.add(direction);
@@ -385,7 +385,7 @@ public class WeaponEffects {
                 public void run() {
                     if (i > particleInstances) {
                         Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                                DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerStats(player.getUniqueId()))));
+                                DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
                         player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
                         cancel();
