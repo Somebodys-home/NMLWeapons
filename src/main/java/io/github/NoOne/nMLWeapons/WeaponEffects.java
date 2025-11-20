@@ -57,7 +57,6 @@ public class WeaponEffects {
             }
         }
 
-        hitEntityUUIDs.clear();
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f);
     }
 
@@ -90,7 +89,6 @@ public class WeaponEffects {
             }
         }
 
-        hitEntityUUIDs.clear();
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f);
     }
 
@@ -138,7 +136,6 @@ public class WeaponEffects {
             }
         }
 
-        hitEntityUUIDs.clear();
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2f, .5f);
     }
 
@@ -179,7 +176,6 @@ public class WeaponEffects {
             }
         }
 
-        hitEntityUUIDs.clear();
         player.playSound(player.getLocation(), Sound.ITEM_MACE_SMASH_AIR, 1f, 1f);
     }
 
@@ -212,7 +208,6 @@ public class WeaponEffects {
             }
         }
 
-        hitEntityUUIDs.clear();
         player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
     }
 
@@ -285,8 +280,6 @@ public class WeaponEffects {
         } else {
             player.sendMessage("§c⚠ §nThis is a two-handed weapon!§r§c ⚠");
         }
-
-        hitEntityUUIDs.clear();
     }
 
     public void bowEffect(Player player, Arrow arrow, Float force) {
@@ -462,7 +455,5 @@ public class WeaponEffects {
 
             player.playSound(player.getLocation(), Sound.BLOCK_BELL_USE, .6f, .5f);
         }
-
-        hitEntityUUIDs.clear();
     }
 }
