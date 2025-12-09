@@ -8,6 +8,7 @@ depend:
   - NMLItems
   - ExpertiseStylePlugin
   - NMLSkills
+  - ProtocolLib
 commands:
   generateWeapon:
     description: generates a weapon for the player

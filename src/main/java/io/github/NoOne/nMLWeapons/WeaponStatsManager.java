@@ -12,11 +12,12 @@ import java.util.Map;
 public class WeaponStatsManager {
     private ProfileManager profileManager;
 
-    public WeaponStatsManager(NMLPlayerStats nmlPlayerStats) { // have to make sure profileManager can't be null
+    public WeaponStatsManager(NMLPlayerStats nmlPlayerStats) {
         profileManager = nmlPlayerStats.getProfileManager();
     }
 
     public void addWeaponStatsToPlayer(Player player, ItemStack weapon) {
+        player.sendMessage("add weapon stats");
         Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
 
         for (Map.Entry<String, Double> statEntry : ItemSystem.convertItemStatsToPlayerStats(weapon).entrySet()) {
@@ -25,6 +26,7 @@ public class WeaponStatsManager {
     }
 
     public void removeWeaponStatsFromPlayer(Player player, ItemStack weapon) {
+        player.sendMessage("remove weapon stats");
         Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
 
         for (Map.Entry<String, Double> statEntry : ItemSystem.convertItemStatsToPlayerStats(weapon).entrySet()) {

@@ -19,7 +19,7 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     private WeaponStatsManager weaponStatsManager;
 
     public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
-        weaponStatsManager = nmlWeapons.getWeaponManager();
+        weaponStatsManager = nmlWeapons.getWeaponStatsManager();
     }
 
     @Override

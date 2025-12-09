@@ -27,6 +27,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
@@ -37,7 +38,7 @@ public class WeaponListener implements Listener {
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
-        weaponStatsManager = nmlWeapons.getWeaponManager();
+        weaponStatsManager = nmlWeapons.getWeaponStatsManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
     }
 
@@ -130,6 +131,7 @@ public class WeaponListener implements Listener {
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         ItemStack oldItem = player.getInventory().getItem(event.getPreviousSlot());
 
+        if (player.getGameMode() == GameMode.CREATIVE) return;
         if (!AbilityItemManager.isAnAbility(newItem)) {
             if (ItemSystem.isWeapon(newItem)) {
                 weaponStatsManager.addWeaponStatsToPlayer(player, newItem);
@@ -143,62 +145,85 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void updateWeaponStatsOnInventoryMove(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
+        PlayerInventory playerInventory = player.getInventory();
         int clickedSlot = event.getSlot();
-        int heldItemSlot = player.getInventory().getHeldItemSlot();
+        int heldItemSlot = playerInventory.getHeldItemSlot();
         ItemStack triggeringItem = event.getCurrentItem();
-        ItemStack previouslyHeldItem = player.getInventory().getItem(heldItemSlot);
+        ItemStack previouslyHeldItem = playerInventory.getItem(heldItemSlot);
 
-        // clicking weapons manually
         switch (event.getClick()) {
-            case SHIFT_LEFT, SHIFT_RIGHT, NUMBER_KEY, CREATIVE -> {
-                if (ItemSystem.isWeapon(triggeringItem)) {
-                    if (clickedSlot == heldItemSlot) {
+            case SHIFT_LEFT, SHIFT_RIGHT -> {
+                if (player.getGameMode() == GameMode.CREATIVE) return;
+                if (clickedSlot == heldItemSlot) { // shift clicking weapon out of hand
+                    if (ItemSystem.isWeapon(triggeringItem)) {
                         weaponStatsManager.removeWeaponStatsFromPlayer(player, triggeringItem);
+                        return;
                     }
+                }
+
+                if (ItemSystem.isWeapon(triggeringItem)) { // maybe shift clicking weapon into hand
+                    ItemStack triggeringItemClone = triggeringItem.clone();
 
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            ItemStack currentlyHeldItem = player.getInventory().getItem(heldItemSlot);
+                            ItemStack newMainHand = player.getInventory().getItem(heldItemSlot);
 
-                            if (triggeringItem.isSimilar(currentlyHeldItem)) {
-                                weaponStatsManager.addWeaponStatsToPlayer(player, currentlyHeldItem);
-                            }
-
-                            if (previouslyHeldItem != null && !previouslyHeldItem.isSimilar(currentlyHeldItem)) {
-                                weaponStatsManager.removeWeaponStatsFromPlayer(player, previouslyHeldItem);
+                            if (triggeringItemClone.isSimilar(newMainHand)) {
+                                weaponStatsManager.addWeaponStatsToPlayer(player, triggeringItemClone);
                             }
                         }
-                    }.runTaskLater(nmlWeapons, 1L);
+                    }.runTask(nmlWeapons);
                 }
             }
-        }
+            case NUMBER_KEY -> {
+                if (player.getGameMode() == GameMode.CREATIVE) return;
 
-        // moving weapons manually normally
-        if (clickedSlot == heldItemSlot) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ItemStack cursorItem = event.getCursor();
-                    ItemStack newMainHandItem = player.getInventory().getItemInMainHand();
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        ItemStack newMainHand = playerInventory.getItem(heldItemSlot);
 
-                    if (ItemSystem.isWeapon(newMainHandItem)) {
-                        weaponStatsManager.addWeaponStatsToPlayer(player, newMainHandItem);
+                        if (ItemSystem.isWeapon(previouslyHeldItem) && !Objects.requireNonNull(previouslyHeldItem).isSimilar(newMainHand)) {
+                            weaponStatsManager.removeWeaponStatsFromPlayer(player, previouslyHeldItem);
+                        }
+
+                        if (ItemSystem.isWeapon(newMainHand) && !Objects.requireNonNull(previouslyHeldItem).isSimilar(newMainHand)) {
+                            weaponStatsManager.addWeaponStatsToPlayer(player, newMainHand);
+                        }
                     }
-                    if (ItemSystem.isWeapon(cursorItem)) {
-                        weaponStatsManager.removeWeaponStatsFromPlayer(player, cursorItem);
-                    }
+                }.runTask(nmlWeapons);
+            }
+            // moving weapons manually normally
+            default -> {
+                if (player.getGameMode() == GameMode.CREATIVE) return;
+                if (clickedSlot == heldItemSlot) {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            ItemStack cursorItem = event.getCursor();
+                            ItemStack newMainHandItem = player.getInventory().getItemInMainHand();
+
+                            if (ItemSystem.isWeapon(newMainHandItem)) {
+                                weaponStatsManager.addWeaponStatsToPlayer(player, newMainHandItem);
+                            }
+                            if (ItemSystem.isWeapon(cursorItem)) {
+                                weaponStatsManager.removeWeaponStatsFromPlayer(player, cursorItem);
+                            }
+                        }
+                    }.runTask(nmlWeapons);
                 }
-            }.runTaskLater(nmlWeapons, 1L);
+            }
         }
     }
 
     @EventHandler
-    public void updateWeaponStatsWhenDropped(PlayerDropItemEvent event) {
+    public void updateWeaponStatsWhenDropped(PlayerDropItemSlotEvent event) {
         Player player = event.getPlayer();
-        ItemStack droppedItem = event.getItemDrop().getItemStack();
+        ItemStack droppedItem = event.getItemStack();
 
-        if (ItemSystem.isWeapon(droppedItem)) {
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+        if (ItemSystem.isWeapon(droppedItem) && event.getSlot() == player.getInventory().getHeldItemSlot()) {
             weaponStatsManager.removeWeaponStatsFromPlayer(player, droppedItem);
         }
     }
@@ -206,25 +231,13 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void updateWeaponStatsOnPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+        if (player.getGameMode() == GameMode.CREATIVE) return;
 
         ItemStack pickedUpItem = event.getItem().getItemStack();
         PlayerInventory playerInventory = player.getInventory();
         ItemStack oldHand = playerInventory.getItemInMainHand();
 
-        // where did that item go?
-        int slot = -1;
-        for (int i = 0; i < playerInventory.getSize(); i++) {
-            ItemStack stack = playerInventory.getItem(i);
-            if (stack != null && stack.isSimilar(pickedUpItem) && stack.getAmount() < stack.getMaxStackSize()) {
-                slot = i;
-            }
-        }
-
-        if (slot == -1) {
-            slot = playerInventory.firstEmpty();
-        }
-
-        if (slot == playerInventory.getHeldItemSlot()) {
+        if (locateItemInInventory(playerInventory, pickedUpItem) == playerInventory.getHeldItemSlot()) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -242,13 +255,28 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
+    public void onGameModeChange(PlayerGameModeChangeEvent event) {
+        Player player = event.getPlayer();
+        PlayerInventory playerInventory = player.getInventory();
+        GameMode prevGameMode = player.getGameMode();
+        ItemStack mainHand = playerInventory.getItemInMainHand();
+
+        if (ItemSystem.isWeapon(mainHand)) {
+            if (prevGameMode == GameMode.SURVIVAL && event.getNewGameMode() == GameMode.CREATIVE) {
+                weaponStatsManager.removeWeaponStatsFromPlayer(player, mainHand);
+            } else if (prevGameMode == GameMode.CREATIVE && event.getNewGameMode() == GameMode.SURVIVAL) {
+                weaponStatsManager.addWeaponStatsToPlayer(player, mainHand);
+            }
+        }
+    }
+
+    @EventHandler
     public void dontPlaceWeaponsInOffhand(InventoryClickEvent event) {
         if (ItemSystem.isWeapon(event.getCursor()) && event.getSlot() == 40) {
-            if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_ONE || event.getAction() == InventoryAction.PLACE_SOME ||
-                event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
-
-                event.setCancelled(true);
-            }
+            if (event.getAction() == InventoryAction.PLACE_ALL ||
+                event.getAction() == InventoryAction.PLACE_ONE ||
+                event.getAction() == InventoryAction.PLACE_SOME ||
+                event.getAction() == InventoryAction.SWAP_WITH_CURSOR) event.setCancelled(true);
         }
     }
 
@@ -267,7 +295,9 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void dontThrowSpears(PlayerInteractEvent event) {
-        if (ItemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+        if (ItemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR ||
+            event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+
             event.setCancelled(true);
         }
     }
@@ -283,12 +313,12 @@ public class WeaponListener implements Listener {
                 player.getInventory().setItemInOffHand(mainHand); // put glove in offhand
             }
         } else { // if main hand item ISN'T a glove
-            if (ItemSystem.getItemType(offhand) == ItemType.GLOVE && !AbilityItemManager.isAnAbility(mainHand)) { // and if offhand item is a glove and youre not swapping
-                                                                                                                   // to an ability item
+            if (ItemSystem.getItemType(offhand) == ItemType.GLOVE &&
+                !AbilityItemManager.isAnAbility(mainHand)) { // and if offhand item is a glove and youre not swapping to an ability item
+
                 player.getInventory().setItemInOffHand(new ItemStack(Material.AIR)); // remove it
             }
         }
-
         if (mainHand == null) { // if mainhand is null
             if (ItemSystem.getItemType(offhand) == ItemType.GLOVE) { // and if offhand item is a glove
                 player.getInventory().setItemInOffHand(new ItemStack(Material.AIR)); // remove it
@@ -303,20 +333,7 @@ public class WeaponListener implements Listener {
         ItemStack pickedUpItem = event.getItem().getItemStack();
         PlayerInventory playerInventory = player.getInventory();
         ItemStack offhand = playerInventory.getItemInOffHand();
-
-        // where did that item go?
-        int slot = -1;
-        for (int i = 0; i < playerInventory.getSize(); i++) {
-            ItemStack stack = playerInventory.getItem(i);
-            if (stack != null && stack.isSimilar(pickedUpItem) && stack.getAmount() < stack.getMaxStackSize()) {
-                slot = i;
-            }
-        }
-
-        if (slot == -1) {
-            slot = playerInventory.firstEmpty();
-        }
-
+        int slot = locateItemInInventory(playerInventory, pickedUpItem);
 
         if (slot == playerInventory.getHeldItemSlot() && ItemSystem.getItemType(pickedUpItem) == ItemType.GLOVE && offhand.getType() == Material.AIR) {
             Bukkit.getScheduler().runTaskLater(nmlWeapons, () -> {
@@ -340,14 +357,8 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void dontMoveOffhandGlove(InventoryClickEvent event) {
-        ItemStack cursorItem = event.getCurrentItem();
-
-        if (ItemSystem.getItemType(cursorItem) == ItemType.GLOVE) {
-            if (event.getAction() == InventoryAction.PICKUP_ALL) {
-                if (event.getSlot() == 40) {
-                    event.setCancelled(true);
-                }
-            }
+        if (ItemSystem.getItemType(event.getCurrentItem()) == ItemType.GLOVE && event.getAction() == InventoryAction.PICKUP_ALL && event.getSlot() == 40) {
+            event.setCancelled(true);
         }
     }
 
@@ -401,5 +412,24 @@ public class WeaponListener implements Listener {
                 }
             }.runTaskLater(nmlWeapons, 1L);
         }
+    }
+
+    /// returns the first slot of an itemstack in the player's inventory
+    /// or -1 if it can't find it
+    private int locateItemInInventory(PlayerInventory playerInventory, ItemStack itemStack) {
+        int slot = -1;
+
+        for (int i = 0; i < playerInventory.getSize(); i++) {
+            ItemStack stack = playerInventory.getItem(i);
+            if (stack != null && stack.isSimilar(itemStack) && stack.getAmount() < stack.getMaxStackSize()) {
+                slot = i;
+            }
+        }
+
+        if (slot == -1) {
+            slot = playerInventory.firstEmpty();
+        }
+
+        return slot;
     }
 }
