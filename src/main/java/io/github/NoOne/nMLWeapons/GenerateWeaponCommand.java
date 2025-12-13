@@ -2,7 +2,7 @@ package io.github.NoOne.nMLWeapons;
 
 import io.github.NoOne.nMLItems.ItemRarity;
 import io.github.NoOne.nMLItems.ItemType;
-import io.github.NoOne.nMLItems.itemDictionary.WeaponGenerator;
+import io.github.NoOne.nMLItems.itemDictionary.Weapons;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,9 +17,11 @@ import java.util.stream.Collectors;
 
 public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
     private WeaponStatsManager weaponStatsManager;
+    private Weapons weapons;
 
     public GenerateWeaponCommand(NMLWeapons nmlWeapons) {
         weaponStatsManager = nmlWeapons.getWeaponStatsManager();
+        weapons = nmlWeapons.getWeapons();
     }
 
     @Override
@@ -28,7 +30,7 @@ public class GenerateWeaponCommand implements CommandExecutor, TabCompleter {
             int level = Integer.parseInt(args[0]);
             String rarity = args[1];
             String type = args[2];
-            ItemStack weapon = WeaponGenerator.generateWeapon(player, ItemType.getItemTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
+            ItemStack weapon = weapons.generateWeapon(player, ItemType.getItemTypeFromString(type), ItemRarity.getItemRarityFromString(rarity), level);
 
             player.getInventory().addItem(weapon);
 

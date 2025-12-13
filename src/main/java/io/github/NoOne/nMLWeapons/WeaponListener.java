@@ -50,16 +50,22 @@ public class WeaponListener implements Listener {
         if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             if (player.hasMetadata("using ability")) return; // metadata block in expertisestyleplugin
             if (ItemSystem.isItemUsable(weapon, player)) {
-                switch (ItemSystem.getItemType(weapon)) {
-                    case SWORD -> weaponEffects.swordEffect(weapon, player);
-                    case DAGGER -> weaponEffects.daggerEffect(weapon, player);
-                    case AXE -> weaponEffects.axeEffect(weapon, player);
-                    case HAMMER -> weaponEffects.hammerEffect(weapon, player);
-                    case SPEAR -> weaponEffects.spearEffect(weapon, player);
-                    case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
-                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
-                    case BOW, SHIELD, QUIVER, HELMET, CHESTPLATE, LEGGINGS, BOOTS, LIGHT, MEDIUM, HEAVY -> {}
-                    case null -> {}
+                ItemType type = ItemSystem.getItemType(weapon);
+
+                if (type == ItemType.SWORD) {
+                    weaponEffects.swordEffect(weapon, player);
+                } else if (type == ItemType.DAGGER) {
+                    weaponEffects.daggerEffect(weapon, player);
+                } else if (type == ItemType.AXE) {
+                    weaponEffects.axeEffect(weapon, player);
+                } else if (type == ItemType.HAMMER) {
+                    weaponEffects.hammerEffect(weapon, player);
+                } else if (type == ItemType.SPEAR) {
+                    weaponEffects.spearEffect(weapon, player);
+                } else if (type == ItemType.GLOVE) {
+                    weaponEffects.gloveEffect(weapon, player, 1);
+                } else if (type == ItemType.WAND || type == ItemType.STAFF || type == ItemType.CATALYST) {
+                    weaponEffects.magicalEffect(weapon, player);
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {

@@ -1,11 +1,9 @@
 package io.github.NoOne.nMLWeapons;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
+import io.github.NoOne.nMLItems.NMLItems;
+import io.github.NoOne.nMLItems.itemDictionary.Weapons;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,6 +13,7 @@ public final class NMLWeapons extends JavaPlugin {
     private ProtocolManager protocolManager;
     private WeaponStatsManager weaponStatsManager;
     private ProfileManager profileManager;
+    private Weapons weapons;
 
     @Override
     public void onEnable() {
@@ -22,7 +21,8 @@ public final class NMLWeapons extends JavaPlugin {
         protocolManager = ProtocolLibrary.getProtocolManager();
 
         weaponStatsManager = new WeaponStatsManager(JavaPlugin.getPlugin(NMLPlayerStats.class));
-        profileManager = JavaPlugin.getPlugin(NMLPlayerStats.class).getProfileManager();
+        profileManager = JavaPlugin.getPlugin(NMLPlayerStats.class).getProfileManager();;
+        weapons = JavaPlugin.getPlugin(NMLItems.class).getWeaponGenerator();
 
         getServer().getPluginManager().registerEvents(new WeaponListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerDropItemSlotHandler(protocolManager), this);
@@ -39,5 +39,9 @@ public final class NMLWeapons extends JavaPlugin {
 
     public ProfileManager getProfileManager() {
         return profileManager;
+    }
+
+    public Weapons getWeapons() {
+        return weapons;
     }
 }
