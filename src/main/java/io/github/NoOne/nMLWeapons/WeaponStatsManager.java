@@ -17,7 +17,6 @@ public class WeaponStatsManager {
     }
 
     public void addWeaponStatsToPlayer(Player player, ItemStack weapon) {
-        player.sendMessage("add weapon stats");
         Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
 
         for (Map.Entry<String, Double> statEntry : ItemSystem.convertItemStatsToPlayerStats(weapon).entrySet()) {
@@ -26,7 +25,6 @@ public class WeaponStatsManager {
     }
 
     public void removeWeaponStatsFromPlayer(Player player, ItemStack weapon) {
-        player.sendMessage("remove weapon stats");
         Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
 
         for (Map.Entry<String, Double> statEntry : ItemSystem.convertItemStatsToPlayerStats(weapon).entrySet()) {
