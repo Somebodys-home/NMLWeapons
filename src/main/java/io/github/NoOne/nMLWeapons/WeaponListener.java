@@ -34,12 +34,14 @@ public class WeaponListener implements Listener {
     private ProfileManager profileManager;
     private WeaponStatsManager weaponStatsManager;
     private WeaponEffects weaponEffects;
+    private AttackCooldownSystem attackCooldownSystem;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
         weaponStatsManager = nmlWeapons.getWeaponStatsManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
+        attackCooldownSystem = nmlWeapons.getAttackCooldownSystem();
     }
 
     @EventHandler
@@ -48,7 +50,7 @@ public class WeaponListener implements Listener {
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
         if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            if (player.hasMetadata("using ability")) return; // metadata block in expertisestyleplugin
+            if (AttackCooldownSystem.isOnAttackCooldown(player)) return;
             if (ItemSystem.isItemUsable(weapon, player)) {
                 ItemType type = ItemSystem.getItemType(weapon);
 
@@ -69,10 +71,11 @@ public class WeaponListener implements Listener {
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (player.hasMetadata("using ability")) { // metadata block in expertisestyleplugin
+            if (AttackCooldownSystem.isOnAttackCooldown(player)) { // metadata block in expertisestyleplugin
                 event.setCancelled(true);
                 return;
             }
+
             if (ItemSystem.isItemUsable(weapon, player) && ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.GLOVE) {
                 if (ItemSystem.getItemType(weapon) == ItemType.GLOVE) {
                     weaponEffects.gloveEffect(weapon, player, 0);

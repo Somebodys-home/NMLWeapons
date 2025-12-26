@@ -36,7 +36,7 @@ public class WeaponEffects {
     public void swordEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        player.setCooldown(weapon.getType(), 20); // 1s cooldown
+        AttackCooldownSystem.setAttackCooldown(player, 1);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
@@ -63,7 +63,7 @@ public class WeaponEffects {
     public void daggerEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        player.setCooldown(weapon.getType(), 5); // .25s cooldown
+        AttackCooldownSystem.setAttackCooldown(player, .25);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
@@ -95,7 +95,7 @@ public class WeaponEffects {
     public void axeEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        player.setCooldown(weapon.getType(), 40); // 2s cooldown
+        AttackCooldownSystem.setAttackCooldown(player, 2);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location baseLocation = player.getLocation().add(0, 1, 0);
@@ -142,7 +142,7 @@ public class WeaponEffects {
     public void hammerEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        player.setCooldown(weapon.getType(), 60); // 3s cooldown
+        AttackCooldownSystem.setAttackCooldown(player, 3);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location baseLocation = player.getLocation().add(0, 1, 0);
@@ -182,7 +182,7 @@ public class WeaponEffects {
     public void spearEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        player.setCooldown(weapon.getType(), 40); // 2s cooldown
+        AttackCooldownSystem.setAttackCooldown(player, 2);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location start = player.getLocation().add(0, 1, 0);
@@ -215,7 +215,7 @@ public class WeaponEffects {
         if (player.hasCooldown(weapon.getType())) return;
         PlayerInventory playerInventory = player.getInventory();
 
-        player.setCooldown(weapon.getType(), 20); // 1s cooldown
+        AttackCooldownSystem.setAttackCooldown(player, 1);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
@@ -341,7 +341,6 @@ public class WeaponEffects {
     public void magicalEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         RayTraceResult target = player.getWorld().rayTraceEntities(
                 player.getEyeLocation(),
                 player.getLocation().getDirection(),
@@ -350,7 +349,7 @@ public class WeaponEffects {
         );
 
         if (target != null && target.getHitEntity() instanceof LivingEntity livingEntity) { // successfully traced a target
-            player.setCooldown(weapon.getType(), 23); // 1.15s cooldown
+            AttackCooldownSystem.setAttackCooldown(player, 1.15);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, .6f, 1f);
 
             Location eyeLoc = player.getEyeLocation();
