@@ -34,14 +34,12 @@ public class WeaponListener implements Listener {
     private ProfileManager profileManager;
     private WeaponStatsManager weaponStatsManager;
     private WeaponEffects weaponEffects;
-    private AttackCooldownSystem attackCooldownSystem;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
         weaponStatsManager = nmlWeapons.getWeaponStatsManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
-        attackCooldownSystem = nmlWeapons.getAttackCooldownSystem();
     }
 
     @EventHandler

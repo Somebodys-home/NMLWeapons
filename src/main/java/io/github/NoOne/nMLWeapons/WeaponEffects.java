@@ -63,7 +63,7 @@ public class WeaponEffects {
     public void daggerEffect(ItemStack weapon, Player player) {
         if (player.hasCooldown(weapon.getType())) return;
 
-        AttackCooldownSystem.setAttackCooldown(player, .25);
+        AttackCooldownSystem.setAttackCooldown(player, .5);
 
         HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
