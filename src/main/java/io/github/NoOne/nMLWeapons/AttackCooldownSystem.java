@@ -167,6 +167,14 @@ public class AttackCooldownSystem {
         cooldownSeconds.put(uuid, pausedTime);
     }
 
+    public static void setOrPauseAttackCooldown(Player player, double cooldown) {
+        if (isOnAttackCooldown(player)) {
+            pauseAttackCooldown(player, cooldown);
+        } else {
+            setAttackCooldown(player,  cooldown);
+        }
+    }
+
     public static boolean isOnAttackCooldown(Player player) {
         return ongoingCooldownTasks.containsKey(player.getUniqueId());
     }
