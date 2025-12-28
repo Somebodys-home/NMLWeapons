@@ -311,22 +311,6 @@ public class WeaponEffects {
                 boost = 1.0 + (.25 * scale);
             }
             arrow.setVelocity(arrow.getVelocity().multiply(boost));
-        } else if (force >= 2.6f) { // fully charged shot
-            arrow.setVelocity(player.getLocation().getDirection().normalize().multiply(3));
-
-            // sonic boom particles
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!arrow.isValid() || arrow.isDead() || arrow.isInBlock()) {
-                        player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
-                        this.cancel();
-                        return;
-                    }
-
-                    player.getWorld().spawnParticle(Particle.SONIC_BOOM, arrow.getLocation(), 0, 0, 0, 0, 0);
-                }
-            }.runTaskTimer(nmlWeapons, 2L, 10L);
         }
 
         // Schedule arrow despawn task

@@ -7,6 +7,7 @@ import io.github.NoOne.expertiseStylePlugin.abilitySystem.AbilityItemManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -18,6 +19,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -83,32 +85,36 @@ public class WeaponListener implements Listener {
     }
 
     @EventHandler
-    public void onWeaponHit(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player player) {
-            if (player.hasMetadata("using ability")) return; // metadata block in expertisestyleplugin
+    public void onWeaponHit(PrePlayerAttackEntityEvent event) {
+        Player player = event.getPlayer();
+        ItemStack weapon = player.getInventory().getItemInMainHand();
 
-            ItemStack weapon = player.getInventory().getItemInMainHand();
-
-            if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
-                switch (ItemSystem.getItemType(weapon)) {
-                    case SWORD -> weaponEffects.swordEffect(weapon, player);
-                    case DAGGER -> weaponEffects.daggerEffect(weapon, player);
-                    case AXE -> weaponEffects.axeEffect(weapon, player);
-                    case HAMMER -> weaponEffects.hammerEffect(weapon, player);
-                    case SPEAR -> weaponEffects.spearEffect(weapon, player);
-                    case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
-                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
-                }
+        if (AttackCooldownSystem.isOnAttackCooldown(player)) return;
+        if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
+            switch (ItemSystem.getItemType(weapon)) {
+                case SWORD -> weaponEffects.swordEffect(weapon, player);
+                case DAGGER -> weaponEffects.daggerEffect(weapon, player);
+                case AXE -> weaponEffects.axeEffect(weapon, player);
+                case HAMMER -> weaponEffects.hammerEffect(weapon, player);
+                case SPEAR -> weaponEffects.spearEffect(weapon, player);
+                case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
+                case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
             }
         }
+    }
 
-        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("custom arrow")) {
-            MetadataValue meta = arrow.getMetadata("custom arrow").get(0);
+    @EventHandler
+    public void customArrowDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("basic_attack_arrow")) {
+            MetadataValue meta = arrow.getMetadata("basic_attack_arrow").get(0);
             HashMap<DamageType, Double> damageMap = (HashMap<DamageType, Double>) meta.value();
 
-            event.setDamage(0);
-            arrow.remove();
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent((LivingEntity) event.getEntity(), player, damageMap));
+            event.setCancelled(true);
+
+            if (event.getEntity() instanceof LivingEntity livingEntity) {
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, damageMap));
+                arrow.remove();
+            }
         }
     }
 
@@ -120,7 +126,7 @@ public class WeaponListener implements Listener {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
                 HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 
-                arrow.setMetadata("custom arrow", new FixedMetadataValue(nmlWeapons, damageMap));
+                arrow.setMetadata("basic_attack_arrow", new FixedMetadataValue(nmlWeapons, damageMap));
                 arrow.setCritical(false);
                 weaponEffects.bowEffect(player, arrow, event.getForce());
             } else {
