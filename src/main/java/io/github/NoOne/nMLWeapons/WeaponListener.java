@@ -55,19 +55,19 @@ public class WeaponListener implements Listener {
                 ItemType type = ItemSystem.getItemType(weapon);
 
                 if (type == ItemType.SWORD) {
-                    weaponEffects.swordEffect(weapon, player);
+                    weaponEffects.swordEffect(player);
                 } else if (type == ItemType.DAGGER) {
-                    weaponEffects.daggerEffect(weapon, player);
+                    weaponEffects.daggerEffect(player);
                 } else if (type == ItemType.AXE) {
-                    weaponEffects.axeEffect(weapon, player);
+                    weaponEffects.axeEffect(player);
                 } else if (type == ItemType.HAMMER) {
-                    weaponEffects.hammerEffect(weapon, player);
+                    weaponEffects.hammerEffect(player);
                 } else if (type == ItemType.SPEAR) {
-                    weaponEffects.spearEffect(weapon, player);
+                    weaponEffects.spearEffect(player);
                 } else if (type == ItemType.GLOVE) {
-                    weaponEffects.gloveEffect(weapon, player, 1);
+                    weaponEffects.gloveEffect(player, 1);
                 } else if (type == ItemType.WAND || type == ItemType.STAFF || type == ItemType.CATALYST) {
-                    weaponEffects.magicalEffect(weapon, player);
+                    weaponEffects.magicalEffect(player);
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -78,7 +78,7 @@ public class WeaponListener implements Listener {
 
             if (ItemSystem.isItemUsable(weapon, player) && ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.GLOVE) {
                 if (ItemSystem.getItemType(weapon) == ItemType.GLOVE) {
-                    weaponEffects.gloveEffect(weapon, player, 0);
+                    weaponEffects.gloveEffect(player, 0);
                 }
             }
         }
@@ -92,13 +92,13 @@ public class WeaponListener implements Listener {
         if (AttackCooldownSystem.isOnAttackCooldown(player)) return;
         if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
             switch (ItemSystem.getItemType(weapon)) {
-                case SWORD -> weaponEffects.swordEffect(weapon, player);
-                case DAGGER -> weaponEffects.daggerEffect(weapon, player);
-                case AXE -> weaponEffects.axeEffect(weapon, player);
-                case HAMMER -> weaponEffects.hammerEffect(weapon, player);
-                case SPEAR -> weaponEffects.spearEffect(weapon, player);
-                case GLOVE -> weaponEffects.gloveEffect(weapon, player, 1);
-                case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(weapon, player);
+                case SWORD -> weaponEffects.swordEffect(player);
+                case DAGGER -> weaponEffects.daggerEffect(player);
+                case AXE -> weaponEffects.axeEffect(player);
+                case HAMMER -> weaponEffects.hammerEffect(player);
+                case SPEAR -> weaponEffects.spearEffect(player);
+                case GLOVE -> weaponEffects.gloveEffect(player, 1);
+                case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(player);
             }
         }
     }

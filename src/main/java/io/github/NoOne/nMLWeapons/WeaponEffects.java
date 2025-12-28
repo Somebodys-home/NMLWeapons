@@ -6,6 +6,7 @@ import io.github.NoOne.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -14,7 +15,6 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -33,122 +33,94 @@ public class WeaponEffects {
         this.profileManager = nmlWeapons.getProfileManager();
     }
 
-    public void swordEffect(ItemStack weapon, Player player) {
-        if (player.hasCooldown(weapon.getType())) return;
-
-        AttackCooldownSystem.setAttackCooldown(player, 1);
-
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
+    public void swordEffect(Player player) {
+        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(3); // distance in blocks of particle from player
 
+        AttackCooldownSystem.setAttackCooldown(player, 1);
         particleLocation.add(direction);
         player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, particleLocation, 0, 0, 0, 0, 0);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f);
 
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, .33, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                livingEntity.setNoDamageTicks(0);
             }
         }
-
-        for (UUID uuid : hitEntityUUIDs) {
-            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
-            }
-        }
-
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f);
     }
 
-    public void daggerEffect(ItemStack weapon, Player player) {
-        if (player.hasCooldown(weapon.getType())) return;
-
-        AttackCooldownSystem.setAttackCooldown(player, .5);
-
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
+    public void daggerEffect(Player player) {
+        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
-
+        
+        AttackCooldownSystem.setAttackCooldown(player, .5);
         particleLocation.add(direction);
         player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, particleLocation, 0, 0, 0, 0, 0);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f);
 
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, .33, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
-            }
-        }
-
-        for (UUID uuid : hitEntityUUIDs) {
-            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
-
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
-                livingEntity.setNoDamageTicks(5);
+                
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                livingEntity.setNoDamageTicks(0);
                 livingEntity.setVelocity(knockback);
             }
         }
-
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f);
     }
 
-    public void axeEffect(ItemStack weapon, Player player) {
-        if (player.hasCooldown(weapon.getType())) return;
-
-        AttackCooldownSystem.setAttackCooldown(player, 2);
-
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
+    public void axeEffect(Player player) {
+        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
         Location baseLocation = player.getLocation().add(0, 1, 0);
         Vector forward = baseLocation.getDirection().normalize().multiply(3);
         Vector leftOffset = forward.clone().rotateAroundY(Math.toRadians(-25));
         Vector rightOffset = forward.clone().rotateAroundY(Math.toRadians(25));
+        Location leftSlashLocation = baseLocation.clone().add(leftOffset);
+        Location centerSlashLocation = baseLocation.clone().add(forward);
+        Location rightSlashLocation = baseLocation.clone().add(rightOffset);
+        HashSet<LivingEntity> hitEntities = new HashSet<>();
 
-        Location leftSlash = baseLocation.clone().add(leftOffset);
-        Location centerSlash = baseLocation.clone().add(forward);
-        Location rightSlash = baseLocation.clone().add(rightOffset);
-
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, leftSlash, 0, 0, 0, 0, 0);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, centerSlash, 0, 0, 0, 0, 0);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, rightSlash, 0, 0, 0, 0, 0);
-
-        for (Entity entity : player.getWorld().getNearbyEntities(leftSlash, 1.5, 5, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
-            }
-        }
-
-        for (Entity entity : player.getWorld().getNearbyEntities(centerSlash, 1.5, 5, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
-            }
-        }
-
-        for (Entity entity : player.getWorld().getNearbyEntities(rightSlash, 1.5, 5, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
-            }
-        }
-
-        for (UUID uuid : hitEntityUUIDs) {
-            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
-            }
-        }
-
+        AttackCooldownSystem.setAttackCooldown(player, 2);
+        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, leftSlashLocation, 0, 0, 0, 0, 0);
+        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, centerSlashLocation, 0, 0, 0, 0, 0);
+        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, rightSlashLocation, 0, 0, 0, 0, 0);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2f, .5f);
+
+        for (Entity entity : player.getWorld().getNearbyEntities(leftSlashLocation, 1.5, 5, 1.5)) {
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
+                hitEntities.add(livingEntity);
+            }
+        }
+
+        for (Entity entity : player.getWorld().getNearbyEntities(centerSlashLocation, 1.5, 5, 1.5)) {
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
+                hitEntities.add(livingEntity);
+            }
+        }
+
+        for (Entity entity : player.getWorld().getNearbyEntities(rightSlashLocation, 1.5, 5, 1.5)) {
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
+                hitEntities.add(livingEntity);
+            }
+        }
+
+        for (LivingEntity livingEntity : hitEntities) {
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+            livingEntity.setNoDamageTicks(0);
+        }
     }
 
-    public void hammerEffect(ItemStack weapon, Player player) {
-        if (player.hasCooldown(weapon.getType())) return;
-
-        AttackCooldownSystem.setAttackCooldown(player, 3);
-
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
+    public void hammerEffect(Player player) {
+        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
         Location baseLocation = player.getLocation().add(0, 1, 0);
         Vector forward = baseLocation.getDirection().normalize().multiply(3);
         Location explosion = baseLocation.clone().add(forward);
 
+        AttackCooldownSystem.setAttackCooldown(player, 3);
+        player.playSound(player.getLocation(), Sound.ITEM_MACE_SMASH_AIR, 1f, 1f);
         player.getWorld().spawnParticle(Particle.EXPLOSION, explosion, 0, 0, 0, 0, 0);
 
         new BukkitRunnable() {
@@ -159,34 +131,25 @@ public class WeaponEffects {
         }.runTaskLater(nmlWeapons, 7L);
 
         for (Entity entity : player.getWorld().getNearbyEntities(explosion, 1.5, 2, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
-            }
-        }
-
-        for (UUID uuid : hitEntityUUIDs) {
-            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
-
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
                 knockback.setY(.2);
                 livingEntity.setVelocity(knockback);
+                livingEntity.setNoDamageTicks(0);
             }
         }
-
-        player.playSound(player.getLocation(), Sound.ITEM_MACE_SMASH_AIR, 1f, 1f);
     }
 
-    public void spearEffect(ItemStack weapon, Player player) {
-        if (player.hasCooldown(weapon.getType())) return;
-
-        AttackCooldownSystem.setAttackCooldown(player, 2);
-
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
+    public void spearEffect(Player player) {
+        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
         Location start = player.getLocation().add(0, 1, 0);
         Vector direction = start.getDirection().normalize().multiply(.5);
+        HashSet<LivingEntity> hitEntities = new HashSet<>();
+
+        AttackCooldownSystem.setAttackCooldown(player, 2);
+        player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
 
         for (int i = 1; i <= 12; i++) {
             Location point = start.clone().add(direction.clone().multiply(i));
@@ -195,58 +158,42 @@ public class WeaponEffects {
             player.getWorld().spawnParticle(Particle.CRIT, point, 5, .01, .01, .01, 0);
 
             for (Entity entity : player.getWorld().getNearbyEntities(point, .55, .55, .55)) {
-                if (entity != player) {
-                    hitEntityUUIDs.add(entity.getUniqueId());
+                if (entity != player && entity instanceof LivingEntity livingEntity) {
+                    hitEntities.add(livingEntity);
                 }
             }
         }
 
-        for (UUID uuid : hitEntityUUIDs) {
-            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                        DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
-            }
+        for (LivingEntity livingEntity : hitEntities) {
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+            livingEntity.setNoDamageTicks(0);
         }
-
-        player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
     }
 
-    public void gloveEffect(ItemStack weapon, Player player, int punchPattern) {
-        if (player.hasCooldown(weapon.getType())) return;
+    public void gloveEffect(Player player, int punchPattern) {
+        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
         PlayerInventory playerInventory = player.getInventory();
-
-        AttackCooldownSystem.setAttackCooldown(player, 1);
-
-        HashSet<UUID> hitEntityUUIDs = new HashSet<>();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
-        HashMap<DamageType, Double> halfDamage = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
-            halfDamage.replaceAll((k, v) -> v / 2); // actually halves the damage
+        HashMap<DamageType, Double> halfDamage = DamageConverter.multiplyDamageMap(DamageConverter.convertPlayerStats2Damage(stats), .5);
 
+        AttackCooldownSystem.setAttackCooldown(player, 1);
         particleLocation.add(direction);
         player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
 
         if (punchPattern == 0) {
             player.swingOffHand();
         }
 
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
-            if (entity != player) {
-                hitEntityUUIDs.add(entity.getUniqueId());
-            }
-        }
-
-        for (UUID uuid : hitEntityUUIDs) {
-            if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
+            if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
-                livingEntity.setNoDamageTicks(7);
+                livingEntity.setNoDamageTicks(0);
             }
         }
-
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
 
         if (ItemSystem.getItemType(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
-            // second hit on a .35s delay
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -255,6 +202,7 @@ public class WeaponEffects {
 
                     particleLocation.add(direction);
                     player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
 
                     if (punchPattern == 0) {
                         player.swingMainHand();
@@ -263,27 +211,25 @@ public class WeaponEffects {
                     }
 
                     for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
-                        if (entity != player) {
-                            hitEntityUUIDs.add(entity.getUniqueId());
-                        }
-                    }
-
-                    for (UUID uuid : hitEntityUUIDs) {
-                        if (Bukkit.getEntity(uuid) instanceof LivingEntity livingEntity) {
+                        if (entity != player && entity instanceof LivingEntity livingEntity) {
                             Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
+                            livingEntity.setNoDamageTicks(0);
                         }
                     }
-
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
                 }
             }.runTaskLater(nmlWeapons, 7L);
-        } else {
-            player.sendMessage("§c⚠ §nThis is a two-handed weapon!§r§c ⚠");
         }
     }
 
     public void bowEffect(Player player, Arrow arrow, Float force) {
-        // custom trail particles
+        arrowDespawnTask = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
+            if (arrow.isDead() || arrow.isInBlock()) {
+                arrow.remove();
+                arrowDespawnTask.cancel();
+            }
+        }, 100L, 40L);
+
+        /// arrow trail
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -312,19 +258,9 @@ public class WeaponEffects {
             }
             arrow.setVelocity(arrow.getVelocity().multiply(boost));
         }
-
-        // Schedule arrow despawn task
-        arrowDespawnTask = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
-            if (arrow.isDead() || arrow.isInBlock()) {
-                arrow.remove();
-                arrowDespawnTask.cancel();
-            }
-        }, 100L, 40L);
     }
 
-    public void magicalEffect(ItemStack weapon, Player player) {
-        if (player.hasCooldown(weapon.getType())) return;
-
+    public void magicalEffect(Player player) {
         RayTraceResult target = player.getWorld().rayTraceEntities(
                 player.getEyeLocation(),
                 player.getLocation().getDirection(),
@@ -333,9 +269,7 @@ public class WeaponEffects {
         );
 
         if (target != null && target.getHitEntity() instanceof LivingEntity livingEntity) { // successfully traced a target
-            AttackCooldownSystem.setAttackCooldown(player, 1.15);
-            player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, .6f, 1f);
-
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
             Location eyeLoc = player.getEyeLocation();
             Vector direction = eyeLoc.getDirection().normalize();
             Random random = new Random();
@@ -354,16 +288,19 @@ public class WeaponEffects {
             double maxHeight = 1.0 + random.nextDouble() * 1.5; // Maximum arc height
             int particleInstances = 10;
 
-            new BukkitRunnable() { // create arc of particles
+            AttackCooldownSystem.setAttackCooldown(player, 1.15);
+            player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, .6f, 1f);
+
+            new BukkitRunnable() { /// particle arc
                 int i = 0;
 
                 @Override
                 public void run() {
                     if (i > particleInstances) {
-                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player,
-                                DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats())));
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
                         player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
+                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                        livingEntity.setNoDamageTicks(0);
                         cancel();
                         return;
                     }
@@ -391,12 +328,13 @@ public class WeaponEffects {
                     i++;
                 }
             }.runTaskTimer(nmlWeapons, 0L, 1L);
-        } else { // miss x
+        } else { /// miss x
             Location center = player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(1.5));
-            center.setY(center.getY() - .125);
-
             int pointsPerLine = 5;
             double size = .33;
+
+            center.setY(center.getY() - .125);
+            player.playSound(player.getLocation(), Sound.BLOCK_BELL_USE, .6f, .5f);
 
             new BukkitRunnable() {
                 int ticks = 0;
@@ -435,8 +373,6 @@ public class WeaponEffects {
                     ticks++;
                 }
             }.runTaskTimer(nmlWeapons, 0L, 1L);
-
-            player.playSound(player.getLocation(), Sound.BLOCK_BELL_USE, .6f, .5f);
         }
     }
 }
