@@ -176,7 +176,7 @@ public class AttackCooldownSystem {
     }
 
     public static boolean isOnAttackCooldown(Player player) {
-        return ongoingCooldownTasks.containsKey(player.getUniqueId());
+        return attackCooldownBars.get(player.getUniqueId()).getProgress() > 0;
     }
 
     private static double calculateRemainingCooldownTime(Player player) {
