@@ -46,7 +46,6 @@ public class WeaponEffects {
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, .33, 1.5)) {
             if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
-                livingEntity.setNoDamageTicks(0);
             }
         }
     }
@@ -66,7 +65,6 @@ public class WeaponEffects {
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
                 
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
-                livingEntity.setNoDamageTicks(0);
                 livingEntity.setVelocity(knockback);
             }
         }
@@ -109,7 +107,6 @@ public class WeaponEffects {
 
         for (LivingEntity livingEntity : hitEntities) {
             Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
-            livingEntity.setNoDamageTicks(0);
         }
     }
 
@@ -137,7 +134,6 @@ public class WeaponEffects {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
                 knockback.setY(.2);
                 livingEntity.setVelocity(knockback);
-                livingEntity.setNoDamageTicks(0);
             }
         }
     }
@@ -166,7 +162,6 @@ public class WeaponEffects {
 
         for (LivingEntity livingEntity : hitEntities) {
             Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
-            livingEntity.setNoDamageTicks(0);
         }
     }
 
@@ -189,7 +184,6 @@ public class WeaponEffects {
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
             if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
-                livingEntity.setNoDamageTicks(0);
             }
         }
 
@@ -213,7 +207,6 @@ public class WeaponEffects {
                     for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
                         if (entity != player && entity instanceof LivingEntity livingEntity) {
                             Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
-                            livingEntity.setNoDamageTicks(0);
                         }
                     }
                 }
@@ -300,7 +293,6 @@ public class WeaponEffects {
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
                         player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
                         Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
-                        livingEntity.setNoDamageTicks(0);
                         cancel();
                         return;
                     }
