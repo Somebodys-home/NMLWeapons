@@ -90,6 +90,18 @@ public class WeaponListener implements Listener {
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
         if (AttackCooldownSystem.isOnAttackCooldown(player)) return;
+
+        // punching
+        if ((weapon.getType() == Material.AIR || !ItemSystem.hasDamageStats(weapon)) && event.getAttacked() instanceof LivingEntity livingEntity) {
+            HashMap<DamageType, Double> fist = new HashMap<>(){{
+                put(DamageType.PHYSICAL, 1.0);
+            }};
+
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, fist, false));
+            AttackCooldownSystem.setAttackCooldown(player, .5);
+            return;
+        }
+
         if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
             switch (ItemSystem.getItemType(weapon)) {
                 case SWORD -> weaponEffects.swordEffect(player);
@@ -100,6 +112,17 @@ public class WeaponListener implements Listener {
                 case GLOVE -> weaponEffects.gloveEffect(player, 1);
                 case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(player);
             }
+        }
+    }
+
+    @EventHandler
+    public void noFistDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)) return;
+
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+
+        if ((weapon.getType() == Material.AIR || !ItemSystem.hasDamageStats(weapon)) && AttackCooldownSystem.isOnAttackCooldown(player)) {
+            event.setCancelled(true);
         }
     }
 
