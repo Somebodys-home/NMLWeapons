@@ -71,8 +71,7 @@ public class WeaponListener implements Listener {
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (AttackCooldownSystem.isOnAttackCooldown(player)) { // metadata block in expertisestyleplugin
-                event.setCancelled(true);
+            if (AttackCooldownSystem.isOnAttackCooldown(player)) {
                 return;
             }
 
