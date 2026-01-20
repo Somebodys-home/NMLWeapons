@@ -1,7 +1,7 @@
 package io.github.NoOne.nMLWeapons;
 
 import io.github.NoOne.damagePlugin.customDamage.CustomDamageEvent;
-import io.github.NoOne.damagePlugin.customDamage.DamageConverter;
+import io.github.NoOne.damagePlugin.customDamage.DamageHelper;
 import io.github.NoOne.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.ItemType;
@@ -45,7 +45,7 @@ public class WeaponEffects {
 
         for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, .33, 1.5)) {
             if (entity != player && entity instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
             }
         }
     }
@@ -64,7 +64,7 @@ public class WeaponEffects {
             if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
                 
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
                 livingEntity.setVelocity(knockback);
             }
         }
@@ -106,7 +106,7 @@ public class WeaponEffects {
         }
 
         for (LivingEntity livingEntity : hitEntities) {
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
         }
     }
 
@@ -131,7 +131,7 @@ public class WeaponEffects {
             if (entity != player && entity instanceof LivingEntity livingEntity) {
                 Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
 
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
                 knockback.setY(.2);
                 livingEntity.setVelocity(knockback);
             }
@@ -161,7 +161,7 @@ public class WeaponEffects {
         }
 
         for (LivingEntity livingEntity : hitEntities) {
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
         }
     }
 
@@ -170,7 +170,7 @@ public class WeaponEffects {
         PlayerInventory playerInventory = player.getInventory();
         Location particleLocation = player.getLocation().add(0, 1, 0);
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
-        HashMap<DamageType, Double> halfDamage = DamageConverter.multiplyDamageMap(DamageConverter.convertPlayerStats2Damage(stats), .5);
+        HashMap<DamageType, Double> halfDamage = DamageHelper.multiplyDamageMap(DamageHelper.convertPlayerStats2Damage(stats), .5);
 
         AttackCooldownSystem.setAttackCooldown(player, 1);
         particleLocation.add(direction);
@@ -292,7 +292,7 @@ public class WeaponEffects {
                     if (i > particleInstances) {
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
                         player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
-                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageConverter.convertPlayerStats2Damage(stats)));
+                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
                         cancel();
                         return;
                     }

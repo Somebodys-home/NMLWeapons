@@ -1,7 +1,7 @@
 package io.github.NoOne.nMLWeapons;
 
 import io.github.NoOne.damagePlugin.customDamage.CustomDamageEvent;
-import io.github.NoOne.damagePlugin.customDamage.DamageConverter;
+import io.github.NoOne.damagePlugin.customDamage.DamageHelper;
 import io.github.NoOne.damagePlugin.customDamage.DamageType;
 import io.github.NoOne.expertiseStylePlugin.abilitySystem.AbilityItemManager;
 import io.github.NoOne.nMLItems.ItemSystem;
@@ -89,27 +89,28 @@ public class WeaponListener implements Listener {
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
         if (AttackCooldownSystem.isOnAttackCooldown(player)) return;
+        if (event.getAttacked() instanceof LivingEntity livingEntity && DamageHelper.isMobDamageable(livingEntity)) {
+            // punching
+            if ((weapon.getType() == Material.AIR || !ItemSystem.hasDamageStats(weapon))) {
+                HashMap<DamageType, Double> fist = new HashMap<>(){{
+                    put(DamageType.PHYSICAL, 1.0);
+                }};
 
-        // punching
-        if ((weapon.getType() == Material.AIR || !ItemSystem.hasDamageStats(weapon)) && event.getAttacked() instanceof LivingEntity livingEntity) {
-            HashMap<DamageType, Double> fist = new HashMap<>(){{
-                put(DamageType.PHYSICAL, 1.0);
-            }};
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, fist, false));
+                AttackCooldownSystem.setAttackCooldown(player, .5);
+                return;
+            }
 
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, fist, false));
-            AttackCooldownSystem.setAttackCooldown(player, .5);
-            return;
-        }
-
-        if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
-            switch (ItemSystem.getItemType(weapon)) {
-                case SWORD -> weaponEffects.swordEffect(player);
-                case DAGGER -> weaponEffects.daggerEffect(player);
-                case AXE -> weaponEffects.axeEffect(player);
-                case HAMMER -> weaponEffects.hammerEffect(player);
-                case SPEAR -> weaponEffects.spearEffect(player);
-                case GLOVE -> weaponEffects.gloveEffect(player, 1);
-                case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(player);
+            if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
+                switch (ItemSystem.getItemType(weapon)) {
+                    case SWORD -> weaponEffects.swordEffect(player);
+                    case DAGGER -> weaponEffects.daggerEffect(player);
+                    case AXE -> weaponEffects.axeEffect(player);
+                    case HAMMER -> weaponEffects.hammerEffect(player);
+                    case SPEAR -> weaponEffects.spearEffect(player);
+                    case GLOVE -> weaponEffects.gloveEffect(player, 1);
+                    case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(player);
+                }
             }
         }
     }
@@ -146,7 +147,7 @@ public class WeaponListener implements Listener {
         if (!(event.getProjectile() instanceof Arrow arrow)) return;
         if (ItemSystem.isItemUsable(event.getBow(), player)) {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
-                HashMap<DamageType, Double> damageMap = DamageConverter.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
+                HashMap<DamageType, Double> damageMap = DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 
                 arrow.setMetadata("basic_attack_arrow", new FixedMetadataValue(nmlWeapons, damageMap));
                 arrow.setCritical(false);
