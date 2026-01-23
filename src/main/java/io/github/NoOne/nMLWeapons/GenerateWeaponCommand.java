@@ -1,7 +1,7 @@
 package io.github.NoOne.nMLWeapons;
 
-import io.github.NoOne.nMLItems.ItemRarity;
-import io.github.NoOne.nMLItems.ItemType;
+import io.github.NoOne.nMLItems.enums.ItemRarity;
+import io.github.NoOne.nMLItems.enums.ItemType;
 import io.github.NoOne.nMLItems.itemDictionary.Weapons;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
