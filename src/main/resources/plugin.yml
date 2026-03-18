@@ -6,7 +6,7 @@ depend:
   - NMLPlayerStats
   - DamagePlugin
   - NMLItems
-  - ExpertiseStylePlugin
+  - NMLAbilities
   - NMLSkills
   - ProtocolLib
 commands:
