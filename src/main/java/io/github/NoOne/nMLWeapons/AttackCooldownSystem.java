@@ -23,14 +23,12 @@ public class AttackCooldownSystem {
         this.nmlWeapons = nmlWeapons;
     }
 
-    public void start() { // main task that runs every tick on the server
+    public void start() {
         playerAttackCooldownTask = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 UUID uuid = player.getUniqueId();
                 BukkitTask cooldownTask = ongoingCooldownTasks.get(uuid); // gets the attack cooldown task of that player
-
-                // give every online player that doesnt have an attack cooldown bar one
-                BossBar bar = attackCooldownBars.computeIfAbsent(uuid, id -> {
+                BossBar bar = attackCooldownBars.computeIfAbsent(uuid, id -> { // give every online player that doesnt have an attack cooldown bar one
                     BossBar newBar = Bukkit.createBossBar("§cAttack Cooldown", BarColor.RED, BarStyle.SOLID);
                     newBar.setProgress(0);
 
@@ -54,11 +52,12 @@ public class AttackCooldownSystem {
         for (BukkitTask task : ongoingCooldownTasks.values()) {
             if (task != null) task.cancel();
         }
-        ongoingCooldownTasks.clear();
 
         for (BossBar bar : attackCooldownBars.values()) {
             bar.removeAll();
         }
+
+        ongoingCooldownTasks.clear();
         attackCooldownBars.clear();
     }
 
@@ -98,39 +97,15 @@ public class AttackCooldownSystem {
         cooldownSeconds.put(uuid, seconds);
     }
 
-    public static void setAttackCooldown(Player player, int ticks) {
-        UUID uuid = player.getUniqueId();
+    public static void pauseAttackCooldown(Player player, double seconds) {
+        pauseAttackCooldown(player);
 
-        if (ongoingCooldownTasks.containsKey(uuid)) {
-            return;
-        }
-
-        double decrement = 1.0 / ticks;
-        BossBar attackCooldownBar = attackCooldownBars.get(uuid);
-        attackCooldownBar.setProgress(1);
-
-
-        BukkitTask task = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
-            double progress = attackCooldownBar.getProgress() - decrement;
-
-            if (progress <= 0) {
-                BukkitTask t = ongoingCooldownTasks.remove(uuid);
-
-                attackCooldownBar.setProgress(0);
-                cooldownSeconds.remove(uuid);
-
-                if (t != null) {
-                    t.cancel();
-                }
-
-                return;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                resumeAttackCooldown(player);
             }
-
-            attackCooldownBar.setProgress(progress);
-        }, 0L, 1L);
-
-        ongoingCooldownTasks.put(uuid, task);
-        cooldownSeconds.put(uuid, ticks / 20.0);
+        }.runTaskLater(nmlWeapons, (long) (seconds * 20));
     }
 
     public static void pauseAttackCooldown(Player player) {
@@ -150,15 +125,12 @@ public class AttackCooldownSystem {
         }
     }
 
-    public static void pauseAttackCooldown(Player player, double pauseTime) {
-        pauseAttackCooldown(player);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                resumeAttackCooldown(player);
-            }
-        }.runTaskLater(nmlWeapons, (long) (pauseTime * 20));
+    public static void setOrPauseAttackCooldown(Player player, double seconds) {
+        if (isOnAttackCooldown(player)) {
+            pauseAttackCooldown(player, seconds);
+        } else {
+            setAttackCooldown(player, seconds);
+        }
     }
 
     public static void resumeAttackCooldown(Player player) {
@@ -175,8 +147,7 @@ public class AttackCooldownSystem {
         attackCooldownBar.setColor(BarColor.RED);
         pausedCooldownPlayers.remove(uuid);
 
-        /// the same as starting attack cooldown
-        /// we just use the pausedTime variable
+        // the same as starting attack cooldown, we just use the pausedTime variable
         int totalTicks = (int) Math.ceil(cooldownSeconds.get(uuid) * 20);
         double decrement = 1.0 / totalTicks;
 
@@ -201,14 +172,6 @@ public class AttackCooldownSystem {
 
         ongoingCooldownTasks.put(uuid, task);
         cooldownSeconds.put(uuid, pausedTime);
-    }
-
-    public static void setOrPauseAttackCooldown(Player player, double cooldown) {
-        if (isOnAttackCooldown(player)) {
-            pauseAttackCooldown(player, cooldown);
-        } else {
-            setAttackCooldown(player,  cooldown);
-        }
     }
 
     public static boolean isOnAttackCooldown(Player player) {
