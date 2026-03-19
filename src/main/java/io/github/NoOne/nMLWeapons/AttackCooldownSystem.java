@@ -5,7 +5,6 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -63,15 +62,17 @@ public class AttackCooldownSystem {
         attackCooldownBars.clear();
     }
 
-    public static void setAttackCooldown(Player player, double cooldown) {
+    public static void setAttackCooldown(Player player, double seconds) {
         UUID uuid = player.getUniqueId();
 
-        if (ongoingCooldownTasks.containsKey(uuid)) return;
+        if (ongoingCooldownTasks.containsKey(uuid)) {
+            return;
+        }
 
         BossBar attackCooldownBar = attackCooldownBars.get(uuid);
         attackCooldownBar.setProgress(1);
 
-        int totalTicks = (int) Math.ceil(cooldown * 20);
+        int totalTicks = (int) Math.ceil(seconds * 20);
         double decrement = 1.0 / totalTicks;
 
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
@@ -94,7 +95,42 @@ public class AttackCooldownSystem {
         }, 0L, 1L);
 
         ongoingCooldownTasks.put(uuid, task);
-        cooldownSeconds.put(uuid, cooldown);
+        cooldownSeconds.put(uuid, seconds);
+    }
+
+    public static void setAttackCooldown(Player player, int ticks) {
+        UUID uuid = player.getUniqueId();
+
+        if (ongoingCooldownTasks.containsKey(uuid)) {
+            return;
+        }
+
+        double decrement = 1.0 / ticks;
+        BossBar attackCooldownBar = attackCooldownBars.get(uuid);
+        attackCooldownBar.setProgress(1);
+
+
+        BukkitTask task = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
+            double progress = attackCooldownBar.getProgress() - decrement;
+
+            if (progress <= 0) {
+                BukkitTask t = ongoingCooldownTasks.remove(uuid);
+
+                attackCooldownBar.setProgress(0);
+                cooldownSeconds.remove(uuid);
+
+                if (t != null) {
+                    t.cancel();
+                }
+
+                return;
+            }
+
+            attackCooldownBar.setProgress(progress);
+        }, 0L, 1L);
+
+        ongoingCooldownTasks.put(uuid, task);
+        cooldownSeconds.put(uuid, ticks / 20.0);
     }
 
     public static void pauseAttackCooldown(Player player) {
