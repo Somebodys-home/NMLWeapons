@@ -126,8 +126,8 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void customArrowDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("basic_attack_arrow")) {
-            MetadataValue meta = arrow.getMetadata("basic_attack_arrow").get(0);
+        if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("custom_arrow")) {
+            MetadataValue meta = arrow.getMetadata("custom_arrow").get(0);
             HashMap<DamageType, Double> damageMap = (HashMap<DamageType, Double>) meta.value();
 
             event.setCancelled(true);
@@ -147,7 +147,7 @@ public class WeaponListener implements Listener {
             if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
                 HashMap<DamageType, Double> damageMap = DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 
-                arrow.setMetadata("basic_attack_arrow", new FixedMetadataValue(nmlWeapons, damageMap));
+                arrow.setMetadata("custom_arrow", new FixedMetadataValue(nmlWeapons, damageMap));
                 arrow.setCritical(false);
                 weaponEffects.bowEffect(player, arrow, event.getForce());
             } else {
