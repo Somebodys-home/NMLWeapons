@@ -127,13 +127,17 @@ public class WeaponListener implements Listener {
     @EventHandler
     public void customArrowDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player player && arrow.hasMetadata("custom_arrow")) {
-            MetadataValue meta = arrow.getMetadata("custom_arrow").get(0);
-            HashMap<DamageType, Double> damageMap = (HashMap<DamageType, Double>) meta.value();
+            HashMap<DamageType, Double> damageMap = (HashMap<DamageType, Double>) arrow.getMetadata("custom_arrow").get(0).value();
+            int noDamageTicks = 20;
 
             event.setCancelled(true);
 
             if (event.getEntity() instanceof LivingEntity livingEntity) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, damageMap));
+                if (arrow.hasMetadata("no_damage_ticks")) {
+                    noDamageTicks = (int) arrow.getMetadata("no_damage_ticks").get(0).value();
+                }
+
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, damageMap, noDamageTicks));
                 arrow.remove();
             }
         }
