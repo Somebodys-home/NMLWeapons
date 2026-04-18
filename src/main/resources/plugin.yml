@@ -9,7 +9,3 @@ depend:
   - NMLAbilities
   - NMLSkills
   - ProtocolLib
-commands:
-  generateWeapon:
-    description: generates a weapon for the player
-    usage: /<command> <type> <rarity>

@@ -17,8 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerDropItemSlotHandler implements Listener {
-    public PlayerDropItemSlotHandler(ProtocolManager protocolManager) {
-        protocolManager.addPacketListener(new PacketAdapter(NMLWeapons.getInstance(), PacketType.Play.Client.BLOCK_DIG) {
+    public PlayerDropItemSlotHandler(ProtocolManager protocolManager, NMLWeapons nmlWeapons) {
+        protocolManager.addPacketListener(new PacketAdapter(nmlWeapons, PacketType.Play.Client.BLOCK_DIG) {
 
             @Override
             public void onPacketReceiving(PacketEvent event) {
@@ -41,7 +41,7 @@ public class PlayerDropItemSlotHandler implements Listener {
                             Bukkit.getPluginManager().callEvent(customEvent);
                             if (customEvent.isCancelled()) event.setCancelled(true);
                         }
-                    }.runTask(NMLWeapons.getInstance()); // Ensures it runs synchronously
+                    }.runTask(nmlWeapons); // Ensures it runs synchronously
                 }
             }
         });

@@ -7,6 +7,7 @@ import io.github.NoOne.nMLAbilities.abilitySystem.AbilityItemManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.enums.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
@@ -28,17 +29,16 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
     private ProfileManager profileManager;
-    private WeaponStatsManager weaponStatsManager;
     private WeaponEffects weaponEffects;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
-        weaponStatsManager = nmlWeapons.getWeaponStatsManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
     }
 
@@ -177,7 +177,13 @@ public class WeaponListener implements Listener {
     public void dontSwapWeaponsToOffhand(InventoryClickEvent event) {
         if ((event.getClick() == ClickType.SWAP_OFFHAND) && ItemSystem.isWeapon(event.getCurrentItem())) {
             event.setCancelled(true);
-            weaponStatsManager.removeWeaponStatsFromPlayer((Player) event.getWhoClicked(), event.getCurrentItem());
+
+            Player player = (Player) event.getWhoClicked();
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+
+            for (Map.Entry<String, Double> statEntry : ItemSystem.convertItemStatsToPlayerStats(event.getCurrentItem()).entrySet()) {
+                stats.removeFromStat(statEntry.getKey(), statEntry.getValue());
+            }
         }
     }
 
