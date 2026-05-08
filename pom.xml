@@ -12,7 +12,7 @@
     <name>NMLWeapons</name>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shade.prefix>io.github.NoOne.shaded</shade.prefix>
     </properties>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>[26.1.2.build,)</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
