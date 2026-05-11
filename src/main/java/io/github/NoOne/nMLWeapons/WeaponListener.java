@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -167,11 +168,18 @@ public class WeaponListener implements Listener {
 
 
     @EventHandler
-    public void dontThrowSpears(PlayerInteractEvent event) {
+    public void dontLowerSpears(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+
         if (itemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR ||
             event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 
             event.setCancelled(true);
+
+            if (itemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.SHIELD)) {
+                player.swingOffHand();
+                player.startUsingItem(EquipmentSlot.OFF_HAND);
+            }
         }
     }
 }
