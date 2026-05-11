@@ -1,10 +1,7 @@
 package io.github.NoOne.nMLWeapons;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.NMLItems;
-import io.github.NoOne.nMLItems.itemDictionary.Weapons;
 import io.github.NoOne.nMLPlayerStats.NMLPlayerStats;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
 import org.bukkit.plugin.java.JavaPlugin;

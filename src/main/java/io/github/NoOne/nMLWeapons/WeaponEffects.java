@@ -146,7 +146,7 @@ public class WeaponEffects {
         Vector direction = start.getDirection().normalize().multiply(.5);
         HashSet<LivingEntity> hitEntities = new HashSet<>();
 
-        AttackCooldownSystem.setAttackCooldown(player, 2);
+        AttackCooldownSystem.setAttackCooldown(player, 1);
         player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
 
         for (int i = 1; i <= 12; i++) {

@@ -34,8 +34,13 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <outputDirectory>C:\Users\hypix\OneDrive\Desktop\No Man's Land\plugins</outputDirectory>
+                    <outputDirectory>C:\No Man's Land\plugins</outputDirectory>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.4.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
