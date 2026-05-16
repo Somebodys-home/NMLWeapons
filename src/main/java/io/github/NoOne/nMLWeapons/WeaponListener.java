@@ -171,14 +171,18 @@ public class WeaponListener implements Listener {
     public void dontLowerSpears(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (itemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR ||
-            event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
 
+        if (itemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
             event.setCancelled(true);
 
             if (itemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.SHIELD)) {
-                player.swingOffHand();
-                player.startUsingItem(EquipmentSlot.OFF_HAND);
+               new BukkitRunnable() {
+                   @Override
+                   public void run() {
+                       player.startUsingItem(EquipmentSlot.OFF_HAND);
+                   }
+               }.runTaskLater(nmlWeapons, 1);
             }
         }
     }
