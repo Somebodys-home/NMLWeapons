@@ -91,7 +91,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>DamagePlugin</artifactId>
-            <version>aa286707eb</version>
+            <version>d35366f6ac</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

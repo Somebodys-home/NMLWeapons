@@ -16,6 +16,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
@@ -174,10 +175,11 @@ public class WeaponEffects {
         Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
         HashMap<DamageType, Double> halfDamage = DamageHelper.multiplyDamageMap(DamageHelper.convertPlayerStats2Damage(stats), .5);
 
+        player.setMetadata("glove_effect", new FixedMetadataValue(nmlWeapons, true));
         AttackCooldownSystem.setAttackCooldown(player, 1);
         particleLocation.add(direction);
         player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 1f);
 
         if (punchPattern == 0) {
             player.swingOffHand();
@@ -197,8 +199,9 @@ public class WeaponEffects {
                     Vector direction = particleLocation.getDirection().multiply(2); // distance in blocks of particle from player
 
                     particleLocation.add(direction);
+                    player.removeMetadata("glove_effect", nmlWeapons);
                     player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 1f);
 
                     if (punchPattern == 0) {
                         player.swingMainHand();
@@ -206,8 +209,9 @@ public class WeaponEffects {
                         player.swingOffHand();
                     }
 
-                    for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 2, 1.5)) {
+                    for (Entity entity : player.getWorld().getNearbyEntities(particleLocation, 1.5, 20, 1.5)) {
                         if (entity != player && entity instanceof LivingEntity livingEntity) {
+                            livingEntity.setNoDamageTicks(0);
                             Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
                         }
                     }
@@ -224,7 +228,7 @@ public class WeaponEffects {
             }
         }, 100L, 40L);
 
-        /// arrow trail
+        // arrow trail
         new BukkitRunnable() {
             @Override
             public void run() {
