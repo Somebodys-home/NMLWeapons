@@ -218,6 +218,8 @@ public class WeaponEffects {
                 }
             }.runTaskLater(nmlWeapons, 7L);
         }
+
+        player.removeMetadata("glove_effect", nmlWeapons);
     }
 
     public void bowEffect(Player player, Arrow arrow, Float force) {
