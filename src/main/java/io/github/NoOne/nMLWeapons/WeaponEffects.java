@@ -179,7 +179,7 @@ public class WeaponEffects {
         AttackCooldownSystem.setAttackCooldown(player, 1);
         particleLocation.add(direction);
         player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 1f);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 2f, 1f);
 
         if (punchPattern == 0) {
             player.swingOffHand();
@@ -201,7 +201,7 @@ public class WeaponEffects {
                     particleLocation.add(direction);
                     player.removeMetadata("glove_effect", nmlWeapons);
                     player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 1f);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 2f, 1f);
 
                     if (punchPattern == 0) {
                         player.swingMainHand();
