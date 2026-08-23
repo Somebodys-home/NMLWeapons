@@ -28,12 +28,10 @@ public class WeaponEffects {
     private NMLWeapons nmlWeapons;
     private ProfileManager profileManager;
     private BukkitTask arrowDespawnTask;
-    private ItemSystem itemSystem;
 
     public WeaponEffects(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         this.profileManager = nmlWeapons.getProfileManager();
-        itemSystem = nmlWeapons.getItemSystem();
     }
 
     public void swordEffect(Player player) {
@@ -191,7 +189,7 @@ public class WeaponEffects {
             }
         }
 
-        if (itemSystem.getItemType(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
+        if (ItemSystem.getItemType(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
             new BukkitRunnable() {
                 @Override
                 public void run() {

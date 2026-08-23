@@ -20,7 +20,7 @@ public class AttackCooldownSystem {
     private static final HashMap<UUID, Double> pausedCooldownPlayers = new HashMap<>(); // all the players who has their cooldown timer paused and how much time there was left
 
     public AttackCooldownSystem(NMLWeapons nmlWeapons) {
-        this.nmlWeapons = nmlWeapons;
+        AttackCooldownSystem.nmlWeapons = nmlWeapons;
     }
 
     public void start() {

@@ -30,13 +30,11 @@ public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
     private ProfileManager profileManager;
     private WeaponEffects weaponEffects;
-    private ItemSystem itemSystem;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
         profileManager = nmlWeapons.getProfileManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
-        itemSystem = nmlWeapons.getItemSystem();
     }
 
     @EventHandler
@@ -44,9 +42,9 @@ public class WeaponListener implements Listener {
         Player player = event.getPlayer();
         ItemStack weapon = player.getInventory().getItemInMainHand();
 
-        if (!itemSystem.isItemUsable(weapon, player) || AttackCooldownSystem.isOnAttackCooldown(player) || player.hasMetadata("glove_effect")) return;
+        if (!ItemSystem.isItemUsable(weapon, player) || AttackCooldownSystem.isOnAttackCooldown(player) || player.hasMetadata("glove_effect")) return;
         if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            switch (itemSystem.getItemType(weapon)) {
+            switch (ItemSystem.getItemType(weapon)) {
                 case SWORD -> weaponEffects.swordEffect(player);
                 case DAGGER -> weaponEffects.daggerEffect(player);
                 case AXE -> weaponEffects.axeEffect(player);
@@ -56,7 +54,7 @@ public class WeaponListener implements Listener {
                 case WAND, STAFF, CATALYST -> weaponEffects.magicalEffect(player);
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (itemSystem.getItemType(weapon) == ItemType.GLOVE && itemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.GLOVE) {
+            if (ItemSystem.getItemType(weapon) == ItemType.GLOVE && ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.GLOVE) {
                 weaponEffects.gloveEffect(player, 0);
             }
         }
@@ -72,7 +70,7 @@ public class WeaponListener implements Listener {
             return;
         }
         if (event.getAttacked() instanceof LivingEntity livingEntity && DamageHelper.isMobDamageable(livingEntity)) {
-            if (!itemSystem.hasDamageStats(weapon)) { // fraud weapon check
+            if (!ItemSystem.hasDamageStats(weapon)) { // fraud weapon check
                 HashMap<DamageType, Double> fist = new HashMap<>(){{
                     put(DamageType.PHYSICAL, 1.0);
                 }};
@@ -82,8 +80,8 @@ public class WeaponListener implements Listener {
                 return;
             }
 
-            if (itemSystem.getItemType(weapon) != null && itemSystem.isItemUsable(weapon, player)) {
-                switch (itemSystem.getItemType(weapon)) {
+            if (ItemSystem.getItemType(weapon) != null && ItemSystem.isItemUsable(weapon, player)) {
+                switch (ItemSystem.getItemType(weapon)) {
                     case SWORD -> weaponEffects.swordEffect(player);
                     case DAGGER -> weaponEffects.daggerEffect(player);
                     case AXE -> weaponEffects.axeEffect(player);
@@ -101,7 +99,7 @@ public class WeaponListener implements Listener {
         if (event.getDamager() instanceof Player player) {
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
-            if ((itemSystem.getItemType(weapon) == null || !itemSystem.hasDamageStats(weapon)) && AttackCooldownSystem.isOnAttackCooldown(player)) {
+            if ((ItemSystem.getItemType(weapon) == null || !ItemSystem.hasDamageStats(weapon)) && AttackCooldownSystem.isOnAttackCooldown(player)) {
                 event.setCancelled(true);
             }
         }
@@ -130,8 +128,8 @@ public class WeaponListener implements Listener {
     public void bowShots(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!(event.getProjectile() instanceof Arrow arrow)) return;
-        if (itemSystem.isItemUsable(event.getBow(), player)) {
-            if (itemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
+        if (ItemSystem.isItemUsable(event.getBow(), player)) {
+            if (ItemSystem.getItemType(player.getInventory().getItemInOffHand()) == ItemType.QUIVER) {
                 HashMap<DamageType, Double> damageMap = DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 
                 arrow.setMetadata("custom_arrow", new FixedMetadataValue(nmlWeapons, damageMap));
@@ -153,11 +151,11 @@ public class WeaponListener implements Listener {
 
         if (event.getHand() != EquipmentSlot.HAND) return;
 
-        if (itemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+        if (ItemSystem.getItemType(event.getItem()) == ItemType.SPEAR && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
             event.setCancelled(true);
 
             // using shields with spears
-            if (itemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.SHIELD)) {
+            if (ItemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.SHIELD)) {
                new BukkitRunnable() {
                    @Override
                    public void run() {
@@ -172,7 +170,7 @@ public class WeaponListener implements Listener {
     public void dontPlaceGloves(BlockPlaceEvent event) {
         ItemStack item = event.getItemInHand();
 
-        if (itemSystem.isItemType(item, ItemType.GLOVE)) {
+        if (ItemSystem.isItemType(item, ItemType.GLOVE)) {
             event.setCancelled(true);
         }
     }
