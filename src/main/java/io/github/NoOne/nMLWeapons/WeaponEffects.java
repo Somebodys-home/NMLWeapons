@@ -22,7 +22,9 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
 
 public class WeaponEffects {
     private NMLWeapons nmlWeapons;
@@ -189,7 +191,7 @@ public class WeaponEffects {
             }
         }
 
-        if (ItemSystem.getItemType(playerInventory.getItemInOffHand()) == ItemType.GLOVE) {
+        if (ItemSystem.isItemType(playerInventory.getItemInOffHand(), ItemType.GLOVE)) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
