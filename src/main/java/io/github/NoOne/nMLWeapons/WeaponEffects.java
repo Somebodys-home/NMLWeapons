@@ -222,33 +222,7 @@ public class WeaponEffects {
         player.removeMetadata("glove_effect", nmlWeapons);
     }
 
-    public void bowEffect(Player player, Arrow arrow, Float force) {
-        arrowDespawnTask = Bukkit.getScheduler().runTaskTimer(nmlWeapons, () -> {
-            if (arrow.isDead() || arrow.isInBlock()) {
-                arrow.remove();
-                arrowDespawnTask.cancel();
-            }
-        }, 100L, 40L);
-
-        // arrow trail
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (arrow.isDead() || arrow.isOnGround()) {
-                    this.cancel();
-                    return;
-                }
-
-                double speed = arrow.getVelocity().length();
-                int particleCount = (int) (Math.pow(speed, 2) * 5);
-
-                if (particleCount > 0) {
-                    Location loc = arrow.getLocation();
-                    player.getWorld().spawnParticle(Particle.CRIT, loc, particleCount,0, 0, 0, 0);
-                }
-            }
-        }.runTaskTimer(nmlWeapons, 0, 1);
-
+    public void bowEffect(Arrow arrow, Float force) {
         if (force <= 2.0f) { // semi-charged shot
             double boost;
             if (force <= .5) {

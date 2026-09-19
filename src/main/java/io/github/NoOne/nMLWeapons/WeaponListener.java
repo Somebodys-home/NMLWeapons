@@ -20,7 +20,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -142,9 +141,8 @@ public class WeaponListener implements Listener {
             if (ItemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.QUIVER)) {
                 HashMap<DamageType, Double> damageMap = DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
 
-                arrow.setMetadata("custom_arrow", new FixedMetadataValue(nmlWeapons, damageMap));
-                arrow.setCritical(false);
-                weaponEffects.bowEffect(player, arrow, event.getForce());
+                ArrowTracker.makeCustomArrow(arrow, damageMap);
+                weaponEffects.bowEffect(arrow, event.getForce());
             } else {
                 player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
                 event.setCancelled(true);
