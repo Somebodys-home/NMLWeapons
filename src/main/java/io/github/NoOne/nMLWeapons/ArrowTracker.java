@@ -42,6 +42,7 @@ public class ArrowTracker {
                     int time = entry.getValue();
 
                     if (time == 0) {
+                        entry.getKey().remove();
                         arrowTimerIterator.remove();
                     } else {
                         entry.setValue(time - 1);
