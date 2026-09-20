@@ -84,6 +84,8 @@ public class WeaponListener implements Listener {
                 return;
             }
 
+            event.setCancelled(true);
+
             if (ItemSystem.isItemUsable(weapon, player)) {
                 if (ItemSystem.isItemType(weapon, ItemType.SWORD)) {
                     weaponEffects.swordEffect(player);
