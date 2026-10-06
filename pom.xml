@@ -87,6 +87,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.12.22</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLPlayerStats</artifactId>
             <version>b207317354</version>
@@ -111,9 +116,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.12.22</version>
+            <groupId>com.github.Somebodys-home</groupId>
+            <artifactId>NMLEnergySystem</artifactId>
+            <version>a8bbc59935</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

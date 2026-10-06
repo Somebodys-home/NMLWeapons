@@ -3,6 +3,7 @@ package io.github.NoOne.nMLWeapons;
 import io.github.NoOne.damagePlugin.customDamage.CustomDamageEvent;
 import io.github.NoOne.damagePlugin.customDamage.DamageHelper;
 import io.github.NoOne.damagePlugin.customDamage.DamageType;
+import io.github.NoOne.nMLEnergySystem.EnergyManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.enums.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
@@ -145,6 +146,7 @@ public class WeaponListener implements Listener {
 
                 ArrowTracker.makeCustomArrow(arrow, damageMap);
                 weaponEffects.bowEffect(arrow, event.getForce());
+                EnergyManager.useEnergy(player, 5);
             } else {
                 player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
                 event.setCancelled(true);
