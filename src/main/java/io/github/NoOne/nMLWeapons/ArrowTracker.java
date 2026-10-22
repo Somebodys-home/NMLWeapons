@@ -1,5 +1,6 @@
 package io.github.NoOne.nMLWeapons;
 
+import io.github.NoOne.damagePlugin.customDamage.DamageHelper;
 import io.github.NoOne.damagePlugin.customDamage.DamageType;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -75,6 +76,10 @@ public class ArrowTracker {
         arrow.setMetadata("custom_arrow", new FixedMetadataValue(nmlWeapons, damage));
         arrow.setCritical(false);
         flyingArrows.add(arrow);
+    }
+
+    public static void makeCustomArrow(Arrow arrow, HashMap<DamageType, Double> damage, float force) {
+        makeCustomArrow(arrow, DamageHelper.multiplyDamageMap(damage, Math.max(.5, force)));
     }
 
     public static void makeCustomArrow(Arrow arrow, HashMap<DamageType, Double> damage, boolean trail) {

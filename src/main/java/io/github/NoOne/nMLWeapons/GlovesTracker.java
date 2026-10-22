@@ -10,15 +10,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 public class GlovesTracker {
-    private NMLWeapons nmlWeapons;
-    private BukkitTask glovesTracker;
+    private static NMLWeapons nmlWeapons = NMLWeapons.getInstance();
 
-    public GlovesTracker(NMLWeapons nmlWeapons) {
-        this.nmlWeapons = nmlWeapons;
-    }
-
-    public void startTracker() {
-        glovesTracker = new BukkitRunnable() {
+    public static void startTracker() {
+        new BukkitRunnable() {
             @Override
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {
@@ -40,9 +35,5 @@ public class GlovesTracker {
                 }
             }
         }.runTaskTimer(nmlWeapons, 0, 1);
-    }
-
-    public void stopTracker() {
-        glovesTracker.cancel();
     }
 }

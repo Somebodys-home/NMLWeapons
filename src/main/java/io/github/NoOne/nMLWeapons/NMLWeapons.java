@@ -18,9 +18,7 @@ public final class NMLWeapons extends JavaPlugin {
         attackCooldownSystem = new AttackCooldownSystem(this);
         attackCooldownSystem.start();
 
-        glovesTracker = new GlovesTracker(this);
-        glovesTracker.startTracker();
-
+        GlovesTracker.startTracker();
         ArrowTracker.startArrowTracker();
         ArrowTracker.startArrowTrailTracker();
         getServer().getPluginManager().registerEvents(new WeaponListener(this), this);
@@ -29,7 +27,6 @@ public final class NMLWeapons extends JavaPlugin {
     @Override
     public void onDisable() {
         attackCooldownSystem.stop();
-        glovesTracker.stopTracker();
     }
 
     public static NMLWeapons getInstance() {

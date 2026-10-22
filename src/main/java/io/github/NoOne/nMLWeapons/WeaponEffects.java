@@ -222,15 +222,19 @@ public class WeaponEffects {
         player.removeMetadata("glove_effect", nmlWeapons);
     }
 
-    public void bowEffect(Arrow arrow, Float force) {
+    public void bowEffect(Player player, Arrow arrow, Float force) {
+        EnergyManager.useEnergy(player, Math.max(5, 10 * force));
+
         if (force <= 2.0f) { // semi-charged shot
             double boost;
+
             if (force <= .5) {
                 boost = 1.0 + (.5 * (1 - (force / .5)));
             } else {
                 double scale = (2.0 - force) / 1.5;
                 boost = 1.0 + (.25 * scale);
             }
+
             arrow.setVelocity(arrow.getVelocity().multiply(boost));
         }
     }

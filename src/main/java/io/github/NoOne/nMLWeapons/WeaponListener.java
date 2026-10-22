@@ -143,10 +143,10 @@ public class WeaponListener implements Listener {
         if (ItemSystem.isItemUsable(event.getBow(), player)) {
             if (ItemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.QUIVER)) {
                 HashMap<DamageType, Double> damageMap = DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
+                float force = event.getForce();
 
-                ArrowTracker.makeCustomArrow(arrow, damageMap);
-                weaponEffects.bowEffect(arrow, event.getForce());
-                EnergyManager.useEnergy(player, 5);
+                ArrowTracker.makeCustomArrow(arrow, damageMap, force);
+                weaponEffects.bowEffect(player, arrow, force);
             } else {
                 player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
                 event.setCancelled(true);
