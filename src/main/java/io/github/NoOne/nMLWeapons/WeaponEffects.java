@@ -35,211 +35,240 @@ public class WeaponEffects {
     }
 
     public void swordEffect(Player player) {
-        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
-        Location playerLocation = player.getLocation();
-        Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(3));
+        int energy = 5;
 
-        AttackCooldownSystem.setAttackCooldown(player, 1);
-        EnergyManager.useEnergy(player, 5);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, particleLocation, 0, 0, 0, 0, 0);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f);
+        if (energyCheck(player, energy)) {
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Location playerLocation = player.getLocation();
+            Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(3));
 
-        for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5, .33, 1.5)) {
-            if (livingEntity != player ) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+            AttackCooldownSystem.setAttackCooldown(player, 1);
+            EnergyManager.useEnergy(player, energy);
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, particleLocation, 0, 0, 0, 0, 0);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f);
+
+            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5, .33, 1.5)) {
+                if (livingEntity != player ) {
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                }
             }
         }
     }
 
     public void daggerEffect(Player player) {
-        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
-        Location playerLocation = player.getLocation();
-        Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
-        
-        AttackCooldownSystem.setAttackCooldown(player, .5);
-        EnergyManager.useEnergy(player, 5);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, particleLocation, 0, 0, 0, 0, 0);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f);
+        int energy = 5;
 
-        for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5, .33, 1.5)) {
-            if (livingEntity != player) {
-                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
-                
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
-                livingEntity.setVelocity(livingEntity.getVelocity().add(knockback));
+        if (energyCheck(player, energy)) {
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Location playerLocation = player.getLocation();
+            Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
+
+            AttackCooldownSystem.setAttackCooldown(player, .5);
+            EnergyManager.useEnergy(player, 5);
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, particleLocation, 0, 0, 0, 0, 0);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 2f);
+
+            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5, .33, 1.5)) {
+                if (livingEntity != player) {
+                    Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
+
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                    livingEntity.setVelocity(livingEntity.getVelocity().add(knockback));
+                }
             }
         }
     }
 
     public void axeEffect(Player player) {
-        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
-        Location baseLocation = player.getLocation().add(0, 1, 0);
-        Vector forward = baseLocation.getDirection().multiply(3);
-        Vector leftOffset = forward.clone().rotateAroundY(Math.toRadians(-25));
-        Vector rightOffset = forward.clone().rotateAroundY(Math.toRadians(25));
-        Location leftSlashLocation = baseLocation.clone().add(leftOffset);
-        Location centerSlashLocation = baseLocation.clone().add(forward);
-        Location rightSlashLocation = baseLocation.clone().add(rightOffset);
-        HashSet<LivingEntity> hitEntities = new HashSet<>(){{
-            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(leftSlashLocation, 1.5, .33, 1.5)) {
-                if (livingEntity != player) {
-                    add(livingEntity);
+        int energy = 10;
+
+        if (energyCheck(player, energy)) {
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Location baseLocation = player.getLocation().add(0, 1, 0);
+            Vector forward = baseLocation.getDirection().multiply(3);
+            Vector leftOffset = forward.clone().rotateAroundY(Math.toRadians(-25));
+            Vector rightOffset = forward.clone().rotateAroundY(Math.toRadians(25));
+            Location leftSlashLocation = baseLocation.clone().add(leftOffset);
+            Location centerSlashLocation = baseLocation.clone().add(forward);
+            Location rightSlashLocation = baseLocation.clone().add(rightOffset);
+            HashSet<LivingEntity> hitEntities = new HashSet<>(){{
+                for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(leftSlashLocation, 1.5, .33, 1.5)) {
+                    if (livingEntity != player) {
+                        add(livingEntity);
+                    }
                 }
-            }
 
-            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(centerSlashLocation, 1.5, .33, 1.5)) {
-                if (livingEntity != player) {
-                    add(livingEntity);
+                for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(centerSlashLocation, 1.5, .33, 1.5)) {
+                    if (livingEntity != player) {
+                        add(livingEntity);
+                    }
                 }
-            }
 
-            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(rightSlashLocation, 1.5)) {
-                if (livingEntity != player) {
-                    add(livingEntity);
+                for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(rightSlashLocation, 1.5)) {
+                    if (livingEntity != player) {
+                        add(livingEntity);
+                    }
                 }
-            }
-        }};
+            }};
 
-        AttackCooldownSystem.setAttackCooldown(player, 2);
-        EnergyManager.useEnergy(player, 5);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, leftSlashLocation, 0, 0, 0, 0, 0);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, centerSlashLocation, 0, 0, 0, 0, 0);
-        player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, rightSlashLocation, 0, 0, 0, 0, 0);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2f, .5f);
+            AttackCooldownSystem.setAttackCooldown(player, 2);
+            EnergyManager.useEnergy(player, energy);
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, leftSlashLocation, 0, 0, 0, 0, 0);
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, centerSlashLocation, 0, 0, 0, 0, 0);
+            player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, rightSlashLocation, 0, 0, 0, 0, 0);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2f, .5f);
 
-        for (LivingEntity livingEntity : hitEntities) {
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
-        }
-    }
-
-    public void hammerEffect(Player player) {
-        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
-        Location playerLocation = player.getLocation();
-        Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
-
-        AttackCooldownSystem.setAttackCooldown(player, 3);
-        EnergyManager.useEnergy(player, 10);
-        player.playSound(player.getLocation(), Sound.ITEM_MACE_SMASH_AIR, 1f, 1f);
-        player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                player.getWorld().spawnParticle(Particle.CRIT, particleLocation.clone().add(0, .5, 0), 30, .20, .20, .20);
-            }
-        }.runTaskLater(nmlWeapons, 7L);
-
-        for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5)) {
-            if (livingEntity != player) {
-                Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
-
-                knockback.setY(.2);
-                livingEntity.setVelocity(livingEntity.getVelocity().add(knockback));
+            for (LivingEntity livingEntity : hitEntities) {
                 Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
             }
         }
     }
 
-    public void spearEffect(Player player) {
-        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
-        Location start = player.getLocation().add(0, 1, 0);
-        Vector direction = start.getDirection().multiply(.5);
-        HashSet<LivingEntity> hitEntities = new HashSet<>();
+    public void hammerEffect(Player player) {
+        int energy = 10;
 
-        AttackCooldownSystem.setAttackCooldown(player, 1);
-        EnergyManager.useEnergy(player, 5);
-        player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
+        if (energyCheck(player, energy)) {
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Location playerLocation = player.getLocation();
+            Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
 
-        for (int i = 1; i <= 12; i++) {
-            Location point = start.clone().add(direction.clone().multiply(i));
+            AttackCooldownSystem.setAttackCooldown(player, 3);
+            EnergyManager.useEnergy(player, energy);
+            player.playSound(player.getLocation(), Sound.ITEM_MACE_SMASH_AIR, 1f, 1f);
+            player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
 
-            point.setY(point.getY() + (i * .05));
-            player.getWorld().spawnParticle(Particle.CRIT, point, 5, .01, .01, .01, 0);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    player.getWorld().spawnParticle(Particle.CRIT, particleLocation.clone().add(0, .5, 0), 30, .20, .20, .20);
+                }
+            }.runTaskLater(nmlWeapons, 7L);
 
-            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(point, .55)) {
+            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5)) {
                 if (livingEntity != player) {
-                    hitEntities.add(livingEntity);
+                    Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+
+                    knockback.setY(.2);
+                    livingEntity.setVelocity(livingEntity.getVelocity().add(knockback));
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
                 }
             }
         }
+    }
 
-        for (LivingEntity livingEntity : hitEntities) {
-            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+    public void spearEffect(Player player) {
+        int energy = 5;
+
+        if (energyCheck(player, energy)) {
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Location start = player.getLocation().add(0, 1, 0);
+            Vector direction = start.getDirection().multiply(.5);
+            HashSet<LivingEntity> hitEntities = new HashSet<>();
+
+            AttackCooldownSystem.setAttackCooldown(player, 1);
+            EnergyManager.useEnergy(player, energy);
+            player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, 1f, 1f);
+
+            for (int i = 1; i <= 12; i++) {
+                Location point = start.clone().add(direction.clone().multiply(i));
+
+                point.setY(point.getY() + (i * .05));
+                player.getWorld().spawnParticle(Particle.CRIT, point, 5, .01, .01, .01, 0);
+
+                for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(point, .55)) {
+                    if (livingEntity != player) {
+                        hitEntities.add(livingEntity);
+                    }
+                }
+            }
+
+            for (LivingEntity livingEntity : hitEntities) {
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+            }
         }
     }
 
     public void gloveEffect(Player player, int punchPattern) {
-        Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
-        PlayerInventory playerInventory = player.getInventory();
-        Location playerLocation = player.getLocation();
-        Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
-        HashMap<DamageType, Double> halfDamage = DamageHelper.multiplyDamageMap(DamageHelper.convertPlayerStats2Damage(stats), .5);
+        int energy = 7;
 
-        player.setMetadata("glove_effect", new FixedMetadataValue(nmlWeapons, true));
-        AttackCooldownSystem.setAttackCooldown(player, 1);
-        EnergyManager.useEnergy(player, 3.5);
-        player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 2f, 1f);
+        if (energyCheck(player, energy)) {
+            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            PlayerInventory playerInventory = player.getInventory();
+            Location playerLocation = player.getLocation();
+            Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
+            HashMap<DamageType, Double> halfDamage = DamageHelper.multiplyDamageMap(DamageHelper.convertPlayerStats2Damage(stats), .5);
 
-        if (punchPattern == 0) {
-            player.swingOffHand();
-        }
+            player.setMetadata("glove_effect", new FixedMetadataValue(nmlWeapons, true));
+            AttackCooldownSystem.setAttackCooldown(player, 1);
+            EnergyManager.useEnergy(player, energy / 2.0);
+            player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 2f, 1f);
 
-        for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5)) {
-            if (livingEntity != player) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
+            if (punchPattern == 0) {
+                player.swingOffHand();
             }
-        }
 
-        if (ItemSystem.isItemType(playerInventory.getItemInOffHand(), ItemType.GLOVE)) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Location playerLocation = player.getLocation();
-                    Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
+            for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5)) {
+                if (livingEntity != player) {
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
+                }
+            }
 
-                    EnergyManager.useEnergy(player, 3.5);
-                    player.removeMetadata("glove_effect", nmlWeapons);
-                    player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 2f, 1f);
+            if (ItemSystem.isItemType(playerInventory.getItemInOffHand(), ItemType.GLOVE)) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Location playerLocation = player.getLocation();
+                        Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
 
-                    if (punchPattern == 0) {
-                        player.swingMainHand();
-                    } else {
-                        player.swingOffHand();
-                    }
+                        EnergyManager.useEnergy(player, energy / 2.0);
+                        player.removeMetadata("glove_effect", nmlWeapons);
+                        player.getWorld().spawnParticle(Particle.EXPLOSION, particleLocation, 0, 0, 0, 0, 0);
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 2f, 1f);
 
-                    for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5)) {
-                        if (livingEntity != player) {
-                            livingEntity.setNoDamageTicks(0);
-                            Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
+                        if (punchPattern == 0) {
+                            player.swingMainHand();
+                        } else {
+                            player.swingOffHand();
+                        }
+
+                        for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5)) {
+                            if (livingEntity != player) {
+                                livingEntity.setNoDamageTicks(0);
+                                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, halfDamage));
+                            }
                         }
                     }
-                }
-            }.runTaskLater(nmlWeapons, 7L);
-        }
+                }.runTaskLater(nmlWeapons, 7L);
+            }
 
-        player.removeMetadata("glove_effect", nmlWeapons);
+            player.removeMetadata("glove_effect", nmlWeapons);
+        }
     }
 
     public void bowEffect(Player player, Arrow arrow, Float force) {
-        EnergyManager.useEnergy(player, Math.max(5, 10 * force));
+        int energy = (int) Math.max(8, 12 * force);
 
-        if (force <= 2.0f) { // semi-charged shot
-            double boost;
+        if (energyCheck(player, energy)) {
+            EnergyManager.useEnergy(player, energy);
 
-            if (force <= .5) {
-                boost = 1.0 + (.5 * (1 - (force / .5)));
-            } else {
-                double scale = (2.0 - force) / 1.5;
-                boost = 1.0 + (.25 * scale);
+            if (force <= 2.0f) { // semi-charged shot
+                double boost;
+
+                if (force <= .5) {
+                    boost = 1.0 + (.5 * (1 - (force / .5)));
+                } else {
+                    double scale = (2.0 - force) / 1.5;
+                    boost = 1.0 + (.25 * scale);
+                }
+
+                arrow.setVelocity(arrow.getVelocity().multiply(boost));
             }
-
-            arrow.setVelocity(arrow.getVelocity().multiply(boost));
         }
     }
 
     public void magicalEffect(Player player) {
+        int energy = 5;
         RayTraceResult target = player.getWorld().rayTraceEntities(
                 player.getEyeLocation(),
                 player.getLocation().getDirection(),
@@ -247,6 +276,7 @@ public class WeaponEffects {
                 entity -> entity instanceof LivingEntity && !entity.equals(player)
         );
 
+        if (!energyCheck(player, energy)) return;
         if (target != null && target.getHitEntity() instanceof LivingEntity livingEntity) { // successfully traced a target
             Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
             Location eyeLoc = player.getEyeLocation();
@@ -268,7 +298,7 @@ public class WeaponEffects {
             int particleInstances = 10;
 
             AttackCooldownSystem.setAttackCooldown(player, 1.15);
-            EnergyManager.useEnergy(player, 5);
+            EnergyManager.useEnergy(player, energy);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, .6f, 1f);
 
             // particle arc
@@ -292,7 +322,7 @@ public class WeaponEffects {
                     double baseZ = start.getZ() + (end.getZ() - start.getZ()) * progress;
 
                     // Apply side curve and vertical arc to base position
-                    double curveOffset = curveDirection * curveAmount * Math.sin(progress * Math.PI); // Horozontial sinusoidal curve offset
+                    double curveOffset = curveDirection * curveAmount * Math.sin(progress * Math.PI); // Horizontal sinusoidal curve offset
                     double heightFactor = minHeight + (maxHeight - minHeight) * Math.sin(progress * Math.PI); // Vertical sinusoidal curve height
                     double x = baseX + curveAxis.getX() * curveOffset;
                     double y = baseY + heightFactor * verticalCurveDirection;
@@ -308,7 +338,7 @@ public class WeaponEffects {
                     i++;
                 }
             }.runTaskTimer(nmlWeapons, 0L, 1L);
-        } else { /// miss x
+        } else { // you missed, make an x
             Location center = player.getEyeLocation().add(player.getEyeLocation().getDirection().multiply(1.5));
             int pointsPerLine = 5;
             double size = .33;
@@ -353,6 +383,15 @@ public class WeaponEffects {
                     ticks++;
                 }
             }.runTaskTimer(nmlWeapons, 0L, 1L);
+        }
+    }
+
+    private boolean energyCheck(Player player, int requiredEnergy) {
+        if (profileManager.getPlayerProfile(player.getUniqueId()).getStats().getCurrentEnergy() >= requiredEnergy) {
+            return true;
+        } else {
+            player.sendMessage("§c⚠ §nNot enough energy!§r§c ⚠");
+            return false;
         }
     }
 }

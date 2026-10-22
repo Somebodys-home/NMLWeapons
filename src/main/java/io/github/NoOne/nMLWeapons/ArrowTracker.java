@@ -79,7 +79,7 @@ public class ArrowTracker {
     }
 
     public static void makeCustomArrow(Arrow arrow, HashMap<DamageType, Double> damage, float force) {
-        makeCustomArrow(arrow, DamageHelper.multiplyDamageMap(damage, Math.max(.5, force)));
+        makeCustomArrow(arrow, DamageHelper.multiplyDamageMap(damage, Math.max(.33, force)));
     }
 
     public static void makeCustomArrow(Arrow arrow, HashMap<DamageType, Double> damage, boolean trail) {

@@ -139,21 +139,28 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void bowShots(EntityShootBowEvent event) {
-        if (!(event.getEntity() instanceof Player player) || !(event.getProjectile() instanceof Arrow arrow)) return;
-        if (ItemSystem.isItemUsable(event.getBow(), player)) {
-            if (ItemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.QUIVER)) {
-                HashMap<DamageType, Double> damageMap = DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats());
-                float force = event.getForce();
+        float force = event.getForce();
+        int energyToUse = (int) Math.max(8, 12 * force);
 
-                ArrowTracker.makeCustomArrow(arrow, damageMap, force);
-                weaponEffects.bowEffect(player, arrow, force);
-            } else {
-                player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
-                event.setCancelled(true);
-            }
-        } else {
+        if (!(event.getEntity() instanceof Player player) || !(event.getProjectile() instanceof Arrow arrow)) return;
+        if (!ItemSystem.isItemUsable(event.getBow(), player)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (profileManager.getPlayerProfile(player.getUniqueId()).getStats().getCurrentEnergy() < energyToUse) {
+            player.sendMessage("§c⚠ §nNot enough energy!§r§c ⚠");
+            event.setCancelled(true);
+            return;
+        }
+
+        if (!ItemSystem.isItemType(player.getInventory().getItemInOffHand(), ItemType.QUIVER)) {
+            player.sendMessage("§c⚠ §nBows require a quiver in your offhand to use!§r§c ⚠");
             event.setCancelled(true);
         }
+
+        ArrowTracker.makeCustomArrow(arrow, DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats()), force);
+        weaponEffects.bowEffect(player, arrow, force);
     }
 
 
@@ -179,9 +186,7 @@ public class WeaponListener implements Listener {
 
     @EventHandler
     public void dontPlaceGloves(BlockPlaceEvent event) {
-        ItemStack item = event.getItemInHand();
-
-        if (ItemSystem.isItemType(item, ItemType.GLOVE)) {
+        if (ItemSystem.isItemType(event.getItemInHand(), ItemType.GLOVE)) {
             event.setCancelled(true);
         }
     }
