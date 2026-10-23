@@ -117,7 +117,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
-            <artifactId>NMLEnergySystem</artifactId>
+            <artifactId>NMLEnergy</artifactId>
             <version>a8bbc59935</version>
             <scope>provided</scope>
         </dependency>

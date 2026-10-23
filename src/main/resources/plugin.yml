@@ -6,7 +6,7 @@ api-version: '26.3'
 load: POSTWORLD
 depend:
   - NMLPlayerStats
-  - DamagePlugin
+  - NMLDamages
   - NMLItems
   - NMLAbilities
-  - NMLSkills
+  - NMLEnergy
