@@ -1,7 +1,9 @@
 name: NMLWeapons
-version: '1.0'
+version: '${version}'
+
 main: io.github.NoOne.nMLWeapons.NMLWeapons
-api-version: '26.1'
+api-version: '26.3'
+load: POSTWORLD
 depend:
   - NMLPlayerStats
   - DamagePlugin

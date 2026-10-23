@@ -1,7 +1,7 @@
 package io.github.NoOne.nMLWeapons;
 
-import io.github.NoOne.damagePlugin.customDamage.DamageHelper;
-import io.github.NoOne.damagePlugin.customDamage.DamageType;
+import io.github.NoOne.nMLDamages.DamageHelper;
+import io.github.NoOne.nMLDamages.DamageType;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Arrow;
