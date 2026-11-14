@@ -1,12 +1,13 @@
 package io.github.NoOne.nMLWeapons;
 
-import io.github.NoOne.nMLDamages.CustomDamageEvent;
+import io.github.NoOne.nMLDamages.event.CustomDamageEvent;
 import io.github.NoOne.nMLDamages.DamageHelper;
-import io.github.NoOne.nMLDamages.DamageType;
+import io.github.NoOne.nMLDamages.enums.DamageType;
 import io.github.NoOne.nMLEnergy.EnergyManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.enums.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.github.NoOne.nMLPlayerStats.statSystem.PlayerStat;
 import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,7 +39,7 @@ public class WeaponEffects {
         int energy = 5;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(3));
 
@@ -49,7 +50,7 @@ public class WeaponEffects {
 
             for (LivingEntity livingEntity : player.getWorld().getNearbyLivingEntities(particleLocation, 1.5, .33, 1.5)) {
                 if (livingEntity != player ) {
-                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, stats));
                 }
             }
         }
@@ -59,7 +60,7 @@ public class WeaponEffects {
         int energy = 5;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
 
@@ -72,7 +73,7 @@ public class WeaponEffects {
                 if (livingEntity != player) {
                     Vector knockback = livingEntity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(.1);
 
-                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, stats));
                     livingEntity.setVelocity(livingEntity.getVelocity().add(knockback));
                 }
             }
@@ -83,7 +84,7 @@ public class WeaponEffects {
         int energy = 10;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             Location baseLocation = player.getLocation().add(0, 1, 0);
             Vector forward = baseLocation.getDirection().multiply(3);
             Vector leftOffset = forward.clone().rotateAroundY(Math.toRadians(-25));
@@ -119,7 +120,7 @@ public class WeaponEffects {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2f, .5f);
 
             for (LivingEntity livingEntity : hitEntities) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, stats));
             }
         }
     }
@@ -128,7 +129,7 @@ public class WeaponEffects {
         int energy = 10;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
 
@@ -150,7 +151,7 @@ public class WeaponEffects {
 
                     knockback.setY(.2);
                     livingEntity.setVelocity(livingEntity.getVelocity().add(knockback));
-                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                    Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, stats));
                 }
             }
         }
@@ -160,7 +161,7 @@ public class WeaponEffects {
         int energy = 5;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             Location start = player.getLocation().add(0, 1, 0);
             Vector direction = start.getDirection().multiply(.5);
             HashSet<LivingEntity> hitEntities = new HashSet<>();
@@ -183,7 +184,7 @@ public class WeaponEffects {
             }
 
             for (LivingEntity livingEntity : hitEntities) {
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, stats));
             }
         }
     }
@@ -192,11 +193,11 @@ public class WeaponEffects {
         int energy = 7;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             PlayerInventory playerInventory = player.getInventory();
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
-            HashMap<DamageType, Double> halfDamage = DamageHelper.multiplyDamageMap(DamageHelper.convertPlayerStats2Damage(stats), .5);
+            HashMap<DamageType, Double> halfDamage = DamageHelper.multiplyDamageMap(DamageHelper.convertPlayerStatsToDamage(stats.getAllDamages()), .5);
 
             player.setMetadata("glove_effect", new FixedMetadataValue(nmlWeapons, true));
             AttackCooldownSystem.setAttackCooldown(player, 1);
@@ -278,7 +279,7 @@ public class WeaponEffects {
 
         if (!energyCheck(player, energy)) return;
         if (target != null && target.getHitEntity() instanceof LivingEntity livingEntity) { // successfully traced a target
-            Stats stats = profileManager.getPlayerProfile(player.getUniqueId()).getStats();
+            Stats stats = profileManager.getStats(player.getUniqueId());
             Location eyeLoc = player.getEyeLocation();
             Vector direction = eyeLoc.getDirection();
             Random random = new Random();
@@ -310,7 +311,7 @@ public class WeaponEffects {
                     if (i > particleInstances) {
                         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, .8f, 1f);
                         player.getWorld().spawnParticle(Particle.EXPLOSION, end, 1, 0, 1, 0, 0);
-                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, DamageHelper.convertPlayerStats2Damage(stats)));
+                        Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, stats));
                         cancel();
                         return;
                     }
@@ -387,7 +388,7 @@ public class WeaponEffects {
     }
 
     private boolean energyCheck(Player player, int requiredEnergy) {
-        if (profileManager.getPlayerProfile(player.getUniqueId()).getStats().getCurrentEnergy() >= requiredEnergy) {
+        if (profileManager.getStats(player.getUniqueId()).getStatValue(PlayerStat.CURRENT_ENERGY) >= requiredEnergy) {
             return true;
         } else {
             player.sendMessage("§c⚠ §nNot enough energy!§r§c ⚠");

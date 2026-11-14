@@ -1,11 +1,13 @@
 package io.github.NoOne.nMLWeapons;
 
-import io.github.NoOne.nMLDamages.CustomDamageEvent;
+import io.github.NoOne.nMLDamages.event.CustomDamageEvent;
 import io.github.NoOne.nMLDamages.DamageHelper;
-import io.github.NoOne.nMLDamages.DamageType;
+import io.github.NoOne.nMLDamages.enums.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.enums.ItemType;
 import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.github.NoOne.nMLPlayerStats.statSystem.PlayerStat;
+import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Arrow;
@@ -79,7 +81,7 @@ public class WeaponListener implements Listener {
                     put(DamageType.PHYSICAL, 1.0);
                 }};
 
-                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, fist, false));
+                Bukkit.getPluginManager().callEvent(new CustomDamageEvent(livingEntity, player, fist));
                 AttackCooldownSystem.setAttackCooldown(player, .5);
                 return;
             }
@@ -142,12 +144,15 @@ public class WeaponListener implements Listener {
         int energyToUse = (int) Math.max(8, 12 * force);
 
         if (!(event.getEntity() instanceof Player player) || !(event.getProjectile() instanceof Arrow arrow)) return;
+
+        Stats stats = profileManager.getStats(player.getUniqueId());
+
         if (!ItemSystem.isItemUsable(event.getBow(), player)) {
             event.setCancelled(true);
             return;
         }
 
-        if (profileManager.getPlayerProfile(player.getUniqueId()).getStats().getCurrentEnergy() < energyToUse) {
+        if (stats.getStatValue(PlayerStat.CURRENT_ENERGY) < energyToUse) {
             player.sendMessage("§c⚠ §nNot enough energy!§r§c ⚠");
             event.setCancelled(true);
             return;
@@ -158,7 +163,7 @@ public class WeaponListener implements Listener {
             event.setCancelled(true);
         }
 
-        ArrowTracker.makeCustomArrow(arrow, DamageHelper.convertPlayerStats2Damage(profileManager.getPlayerProfile(player.getUniqueId()).getStats()), force);
+        ArrowTracker.makeCustomArrow(arrow, (HashMap<DamageType, Double>) DamageHelper.convertPlayerStatsToDamage(stats.getAllDamages()), force);
         weaponEffects.bowEffect(player, arrow, force);
     }
 
