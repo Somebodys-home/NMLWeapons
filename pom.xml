@@ -100,7 +100,7 @@
         <dependency>
             <groupId>com.github.Somebodys-home</groupId>
             <artifactId>NMLDamages</artifactId>
-            <version>82555942fb</version>
+            <version>7dedbcff99</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
