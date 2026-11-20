@@ -15,10 +15,10 @@ import java.util.Map;
 
 public class ArrowTracker {
     private static NMLWeapons nmlWeapons = NMLWeapons.getInstance();
-    public static ArrayList<Arrow> flyingArrows = new ArrayList<>();
-    public static HashMap<Arrow, Integer> arrowTimers = new HashMap<>();
-    public static HashMap<Arrow, Integer> arrowTimeSaves = new HashMap<>(); // for arrows that have a preset despawn time
-    public static ArrayList<Arrow> noTrailArrows = new ArrayList<>(); // for arrows that won't have a trail
+    private static ArrayList<Arrow> flyingArrows = new ArrayList<>();
+    private static HashMap<Arrow, Integer> arrowTimers = new HashMap<>();
+    private static HashMap<Arrow, Integer> arrowTimeSaves = new HashMap<>(); // for arrows that have a preset despawn time
+    private static ArrayList<Arrow> noTrailArrows = new ArrayList<>(); // for arrows that won't have a trail
 
     public static void startArrowTracker() {
         new BukkitRunnable() {
