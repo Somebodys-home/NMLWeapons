@@ -6,7 +6,7 @@ import io.github.NoOne.nMLDamages.enums.DamageType;
 import io.github.NoOne.nMLEnergy.EnergyManager;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.enums.ItemType;
-import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.github.NoOne.nMLPlayerStats.StatConfigManager;
 import io.github.NoOne.nMLPlayerStats.statSystem.PlayerStat;
 import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import org.bukkit.Bukkit;
@@ -28,18 +28,18 @@ import java.util.Random;
 
 public class WeaponEffects {
     private NMLWeapons nmlWeapons;
-    private ProfileManager profileManager;
+    private StatConfigManager statConfigManager;
 
     public WeaponEffects(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
-        this.profileManager = nmlWeapons.getProfileManager();
+        this.statConfigManager = nmlWeapons.getStatConfigManager();
     }
 
     public void swordEffect(Player player) {
         int energy = 5;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(3));
 
@@ -60,7 +60,7 @@ public class WeaponEffects {
         int energy = 5;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
 
@@ -84,7 +84,7 @@ public class WeaponEffects {
         int energy = 10;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             Location baseLocation = player.getLocation().add(0, 1, 0);
             Vector forward = baseLocation.getDirection().multiply(3);
             Vector leftOffset = forward.clone().rotateAroundY(Math.toRadians(-25));
@@ -129,7 +129,7 @@ public class WeaponEffects {
         int energy = 10;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
 
@@ -161,7 +161,7 @@ public class WeaponEffects {
         int energy = 5;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             Location start = player.getLocation().add(0, 1, 0);
             Vector direction = start.getDirection().multiply(.5);
             HashSet<LivingEntity> hitEntities = new HashSet<>();
@@ -193,7 +193,7 @@ public class WeaponEffects {
         int energy = 7;
 
         if (energyCheck(player, energy)) {
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             PlayerInventory playerInventory = player.getInventory();
             Location playerLocation = player.getLocation();
             Location particleLocation = playerLocation.add(0, 1, 0).add(playerLocation.getDirection().multiply(2));
@@ -279,7 +279,7 @@ public class WeaponEffects {
 
         if (!energyCheck(player, energy)) return;
         if (target != null && target.getHitEntity() instanceof LivingEntity livingEntity) { // successfully traced a target
-            Stats stats = profileManager.getStats(player.getUniqueId());
+            Stats stats = statConfigManager.getStats(player.getUniqueId());
             Location eyeLoc = player.getEyeLocation();
             Vector direction = eyeLoc.getDirection();
             Random random = new Random();
@@ -388,7 +388,7 @@ public class WeaponEffects {
     }
 
     private boolean energyCheck(Player player, int requiredEnergy) {
-        if (profileManager.getStats(player.getUniqueId()).getStatValue(PlayerStat.CURRENT_ENERGY) >= requiredEnergy) {
+        if (statConfigManager.getStats(player.getUniqueId()).getStatValue(PlayerStat.CURRENT_ENERGY) >= requiredEnergy) {
             return true;
         } else {
             player.sendMessage("§c⚠ §nNot enough energy!§r§c ⚠");

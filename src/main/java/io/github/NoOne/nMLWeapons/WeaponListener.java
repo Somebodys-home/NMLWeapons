@@ -5,7 +5,7 @@ import io.github.NoOne.nMLDamages.DamageHelper;
 import io.github.NoOne.nMLDamages.enums.DamageType;
 import io.github.NoOne.nMLItems.ItemSystem;
 import io.github.NoOne.nMLItems.enums.ItemType;
-import io.github.NoOne.nMLPlayerStats.profileSystem.ProfileManager;
+import io.github.NoOne.nMLPlayerStats.StatConfigManager;
 import io.github.NoOne.nMLPlayerStats.statSystem.PlayerStat;
 import io.github.NoOne.nMLPlayerStats.statSystem.Stats;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
@@ -28,12 +28,12 @@ import java.util.HashMap;
 
 public class WeaponListener implements Listener {
     private NMLWeapons nmlWeapons;
-    private ProfileManager profileManager;
+    private StatConfigManager statConfigManager;
     private WeaponEffects weaponEffects;
 
     public WeaponListener(NMLWeapons nmlWeapons) {
         this.nmlWeapons = nmlWeapons;
-        profileManager = nmlWeapons.getProfileManager();
+        statConfigManager = nmlWeapons.getStatConfigManager();
         weaponEffects = new WeaponEffects(nmlWeapons);
     }
 
@@ -145,7 +145,7 @@ public class WeaponListener implements Listener {
 
         if (!(event.getEntity() instanceof Player player) || !(event.getProjectile() instanceof Arrow arrow)) return;
 
-        Stats stats = profileManager.getStats(player.getUniqueId());
+        Stats stats = statConfigManager.getStats(player.getUniqueId());
 
         if (!ItemSystem.isItemUsable(event.getBow(), player)) {
             event.setCancelled(true);
